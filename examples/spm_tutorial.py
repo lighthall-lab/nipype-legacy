@@ -289,7 +289,7 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (level1design,level1estimate,[('spm_mat_file','spm_mat_file')]),
                   (level1estimate,contrastestimate,[('spm_mat_file','spm_mat_file'),
                                                   ('beta_images','beta_images'),
-                                                  ('residual_image','residual_image')]),
+                                                  ('mean_residual_image','mean_residual_image')]),
                   ])
 
 
@@ -330,7 +330,7 @@ l1pipeline.connect([(infosource,datasink,[('subject_id','container'),
                     (level1estimate,datasink,[('spm_mat_file','model.@spm'),
                                               ('beta_images','model.@beta'),
                                               ('mask_image','model.@mask'),
-                                              ('residual_image','model.@res'),
+                                              ('mean_residual_image','model.@res'),
                                               ('RPVimage','model.@rpv')]),
                     (contrastestimate,datasink,[('con_images','contrasts.@con'),
                                                 ('spmT_images','contrasts.@T')]),

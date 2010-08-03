@@ -157,9 +157,10 @@ class EstimateModelInputSpec(SPMCommandInputSpec):
 class EstimateModelOutputSpec(TraitedSpec):
     mask_image = File(exists=True, desc='binary mask to constrain estimation')
     beta_images = OutputMultiPath(File(exists=True), desc='design parameter estimates')
-    residual_image = File(exists=True, desc='Mean-squared image of the residuals')
+    mean_residual_image = File(exists=True, desc='Mean-squared image of the residuals')
     RPVimage = File(exists=True, desc='Resels per voxel image')
     spm_mat_file = File(exist=True, desc='Updated SPM mat file')
+    residual_images = traits.List(File(), desc='List of residual images - requires patching SPM code.')
 
 class EstimateModel(SPMCommand):
     """Use spm_spm to estimate the parameters of a model
@@ -209,11 +210,13 @@ class EstimateModel(SPMCommand):
         if betas:
             outputs['beta_images'] = betas
         resms = os.path.join(pth, 'ResMS.img')
-        outputs['residual_image'] = resms
+        outputs['mean_residual_image'] = resms
         rpv = os.path.join(pth, 'RPV.img')
         outputs['RPVimage'] = rpv
         spm = os.path.join(pth, 'SPM.mat')
         outputs['spm_mat_file'] = spm
+        outputs['residual_images'] = glob("ResI*.img")
+        outputs['residual_images'].sort()
         return outputs
 
 class EstimateContrastInputSpec(SPMCommandInputSpec):
@@ -245,7 +248,7 @@ class EstimateContrastInputSpec(SPMCommandInputSpec):
             contrasts, the condition list should contain previously defined
             T-contrasts.""")
     beta_images = InputMultiPath(File(exists=True), desc='Parameter estimates of the design matrix', copyfile=False)
-    residual_image = File(exists=True, desc='Mean-squared image of the residuals', copyfile=False)
+    mean_residual_image = File(exists=True, desc='Mean-squared image of the residuals', copyfile=False)
     ignore_derivs = traits.Bool(True, desc='ignore derivatives for estimation',
                                 usedefault=True, xor=['group_contrast'])
     group_contrast = traits.Bool(False, desc='higher level contrast', usedefault=True,
