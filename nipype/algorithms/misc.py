@@ -359,3 +359,4 @@ class BootstrapTimeSeries(BaseInterface):
         _, base, ext = split_filename(self.inputs.original_volume)
         outputs['bootstraped_volume'] = os.path.abspath(base + "_thresholded.nii")
         return outputs
+#comment
