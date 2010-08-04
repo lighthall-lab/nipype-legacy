@@ -323,8 +323,7 @@ class Dissimilarity(BaseInterface):
 
 class BootstrapTimeSeriesInputSpec(TraitedSpec):
     original_volume = File(exists=True, desc="source volume for bootstrapping", mandatory=True)
-    block_size = traits.Int(mandatory=True)
-    onsets = traits.List(traits.Int(), mandatory=True)
+    subject_info = traits.Any()
     id = traits.Int()
 
 class BootstrapTimeSeriesOutputSpec(TraitedSpec):
@@ -337,15 +336,17 @@ class BootstrapTimeSeries(BaseInterface):
     def _run_interface(self, runtime):
         img = nb.load(self.inputs.original_volume)
         original_volume = img.get_data()
-        block_size = self.inputs.block_size
-        onsets = self.inputs.onsets
         
         new_volume = original_volume.copy()
         
-        for onset in onsets:
-            for rel_i in range(block_size):
-                new_i = onsets[np.random.random_integers(0, len(onsets)-1)] + rel_i
-                new_volume[:,:,:,onset+rel_i] = original_volume[:,:,:,new_i]
+        for ci, condition_name in enumerate(self.inputs.subject_info[0].conditions):
+            block_size = self.inputs.subject_info[0].durations[ci][0]
+            onsets = self.inputs.subject_info[0].onsets[ci]
+            
+            for onset in onsets:
+                for rel_i in range(block_size):
+                    new_i = onsets[np.random.random_integers(0, len(onsets)-1)] + rel_i
+                    new_volume[:,:,:,onset+rel_i] = original_volume[:,:,:,new_i]
             
         new_img = nb.Nifti1Image(new_volume, img.get_affine(), img.get_header())
         _, base, ext = split_filename(self.inputs.original_volume)
