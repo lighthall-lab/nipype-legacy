@@ -215,7 +215,7 @@ class EstimateModel(SPMCommand):
         outputs['RPVimage'] = rpv
         spm = os.path.join(pth, 'SPM.mat')
         outputs['spm_mat_file'] = spm
-        outputs['residual_images'] = glob("ResI*.img")
+        outputs['residual_images'] = glob(os.path.join(pth,"ResI*.img"))
         outputs['residual_images'].sort()
         return outputs
 
