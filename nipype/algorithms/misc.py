@@ -360,4 +360,32 @@ class BootstrapTimeSeries(BaseInterface):
         _, base, ext = split_filename(self.inputs.original_volume)
         outputs['bootstraped_volume'] = os.path.abspath(base + "_bootstrap.nii")
         return outputs
-#comment
+
+class FrequencyMapCreatorInputSpec(TraitedSpec):
+    binary_images = traits.List(File(exists=True))
+    
+class FrequencyMapCreatorOutputSpec(TraitedSpec):
+    frequency_map = File(exists=True)
+    
+class FrequencyMap(BaseInterface):
+    
+    input_spec = FrequencyMapCreatorInputSpec
+    output_spec = FrequencyMapCreatorOutputSpec
+    
+    def _run_interface(self, runtime):
+        frequency_map = None
+        for filename in self.inputs.binary_images:
+            img = nb.load(filename)
+            binary_volume = (img.get_data() != 0)
+            
+            if frequency_map == None:
+                frequency_map = np.zeros(binary_volume.shape())
+            frequency_map += binary_volume
+        
+        new_img = nb.Nifti1Image(frequency_map, img.get_affine(), img.get_header())
+        nb.save(new_img, "frequency_map.nii")
+        
+    def _list_outputs(self):
+        outputs = self._outputs().get()
+        outputs['frequency_map'] = os.path.abspath("frequency_map.nii")
+        return outputs
