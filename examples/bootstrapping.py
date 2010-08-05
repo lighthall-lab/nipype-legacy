@@ -121,6 +121,19 @@ and register all images to the mean image.
 realign = pe.Node(interface=spm.Realign(), name="realign")
 realign.inputs.register_to_mean = True
 
+"""Use :class:`nipype.algorithms.rapidart` to determine which of the
+images in the functional series are outliers based on deviations in
+intensity or movement.
+"""
+
+art = pe.Node(interface=ra.ArtifactDetect(), name="art")
+art.inputs.use_differences      = [True,True]
+art.inputs.use_norm             = True
+art.inputs.norm_threshold       = 0.5
+art.inputs.zintensity_threshold = 3
+art.inputs.mask_type            = 'spm_global'
+art.inputs.parameter_source     = 'SPM'
+
 
 """Use :class:`nipype.interfaces.spm.Coregister` to perform a rigid
 body registration of the functional data to the structural data.
@@ -258,7 +271,7 @@ contrastestimate.inputs.contrasts = contrasts
 threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction = False), name="threshold")
 
 bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
-bootstrap.iterables = ('id',range(2))
+bootstrap.iterables = ('id',range(100))
 
 """
 Setup the pipeline
@@ -295,6 +308,9 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (infosource,modelspec_detrend,[('subject_id','subject_id'),
                                                  (('subject_id', subjectinfo_empty),'subject_info')]),
                   (realign,modelspec_detrend,[('realignment_parameters','realignment_parameters')]),
+                  (realign,art,[('realignment_parameters','realignment_parameters')]),
+                  (coregister,art,[('coregistered_files','realigned_files')]),
+                  (art,modelspec_detrend,[('outlier_files','outlier_files')]),
                   (smooth,modelspec_detrend,[('smoothed_files','functional_runs')]),                  
                   (modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
                   (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
