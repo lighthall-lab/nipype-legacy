@@ -234,6 +234,13 @@ level1estimate_detrend.inputs.estimation_method = {'Classical' : 1}
 
 join_residuals = pe.Node(interface=fsl.Merge(dimension="t"), name="join_residuals")
 
+
+# from float64 to float32
+img2float = pe.Node(interface=fsl.ImageMaths(out_data_type='float',
+                                             op_string = '',
+                                             suffix='_dtype'),
+                       name='img2float')
+
 """Generate SPM-specific design information using
 :class:`nipype.interfaces.spm.SpecifyModel`.
 """
@@ -315,8 +322,9 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
                   (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
                   (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
+                  (join_residuals, img2float, [('merged_file', 'in_file')]),
                   
-                  (join_residuals, bootstrap, [('merged_file', 'original_volume')]),
+                  (img2float, bootstrap, [('out_file', 'original_volume')]),
                   (infosource,bootstrap,[(('subject_id', subjectinfo),'subject_info')]),
                   
                   (bootstrap, modelspec, [('bootstraped_volume', 'functional_runs')]),
@@ -339,6 +347,20 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
 
 
 
+
+
+l2pipeline = pe.Workflow(name="level2")
+l2pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
+
+l2source = pe.Node(nio.DataGrabber(infields=["subject_id"]),name="l2source")
+l2source.inputs.template=os.path.abspath('bootstrapping/workingdir/level1/_subject_id_%s/_id_*/threshold/thresholded_map.img')
+l2source.iterables = [('subject_id',subject_list)]
+frequency_map = pe.Node(misc.FrequencyMap(), name="frequency_map")
+
+l2pipeline.connect([
+                    (l2source,frequency_map, [('outfiles', 'binary_images')])
+                    ])
+
 """
 Execute the pipeline
 --------------------
@@ -352,4 +374,4 @@ function needs to be called.
 
 if __name__ == '__main__':
     l1pipeline.run()
-
+    l2pipeline.run()
