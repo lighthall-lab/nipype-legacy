@@ -121,25 +121,6 @@ and register all images to the mean image.
 realign = pe.Node(interface=spm.Realign(), name="realign")
 realign.inputs.register_to_mean = True
 
-"""Use :class:`nipype.algorithms.rapidart` to determine which of the
-images in the functional series are outliers based on deviations in
-intensity or movement.
-"""
-
-art = pe.Node(interface=ra.ArtifactDetect(), name="art")
-art.inputs.use_differences      = [True,True]
-art.inputs.use_norm             = True
-art.inputs.norm_threshold       = 0.5
-art.inputs.zintensity_threshold = 3
-art.inputs.mask_type            = 'file'
-art.inputs.parameter_source     = 'SPM'
-
-"""Skull strip structural images using
-:class:`nipype.interfaces.fsl.BET`.
-"""
-
-skullstrip = pe.Node(interface=fsl.BET(), name="skullstrip")
-skullstrip.inputs.mask = True
 
 """Use :class:`nipype.interfaces.spm.Coregister` to perform a rigid
 body registration of the functional data to the structural data.
@@ -147,15 +128,6 @@ body registration of the functional data to the structural data.
 
 coregister = pe.Node(interface=spm.Coregister(), name="coregister")
 coregister.inputs.jobtype = 'estimate'
-
-
-"""Warp functional and structural data to SPM's T1 template using
-:class:`nipype.interfaces.spm.Normalize`.  The tutorial data set
-includes the template image, T1.nii.
-"""
-
-normalize = pe.Node(interface=spm.Normalize(), name = "normalize")
-normalize.inputs.template = os.path.abspath('data/T1.nii')
 
 
 """Smooth the functional data using
@@ -283,7 +255,7 @@ first level contrasts specified in a few steps above.
 contrastestimate = pe.Node(interface = spm.EstimateContrast(), name="contrastestimate")
 contrastestimate.inputs.contrasts = contrasts
 
-threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction = False),name="threshold")
+threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction = False), name="threshold")
 
 bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
 bootstrap.iterables = ('id',range(2))
@@ -319,21 +291,12 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (realign,coregister,[('mean_image', 'source'),
                                        ('realigned_files','apply_to_files')]),
         		  (datasource,coregister,[('struct', 'target')]),
-        		  (datasource,normalize,[('struct', 'source')]),
-        		  (coregister,normalize, [('coregistered_files','apply_to_files')]),
-        		  (normalize,smooth, [('normalized_files', 'in_files')]),
-                  (normalize,skullstrip,[('normalized_source','in_file')]),
-                  (realign,art,[('realignment_parameters','realignment_parameters')]),
-                  (normalize,art,[('normalized_files','realigned_files')]),
-                  (skullstrip,art,[('mask_file','mask_file')]),
-                  
+                  (coregister,smooth, [('coregistered_files', 'in_files')]),
                   (infosource,modelspec_detrend,[('subject_id','subject_id'),
                                                  (('subject_id', subjectinfo_empty),'subject_info')]),
                   (realign,modelspec_detrend,[('realignment_parameters','realignment_parameters')]),
                   (smooth,modelspec_detrend,[('smoothed_files','functional_runs')]),                  
-                  (art,modelspec_detrend,[('outlier_files','outlier_files')]),
                   (modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
-                  (skullstrip,level1design_detrend,[('mask_file','mask_image')]),
                   (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
                   (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
                   
@@ -341,16 +304,15 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (infosource,bootstrap,[(('subject_id', subjectinfo),'subject_info')]),
                   
                   (bootstrap, modelspec, [('bootstraped_volume', 'functional_runs')]),
+#                  (join_residuals, modelspec, [('merged_file', 'functional_runs')]),
                   (infosource,modelspec,[('subject_id','subject_id'),
                                          (('subject_id', subjectinfo),'subject_info')]),
                   (modelspec,level1design,[('session_info','session_info')]),
-                  (skullstrip,level1design,[('mask_file','mask_image')]),
+                  (level1estimate_detrend, level1design, [('mask_image', 'mask_image')]),
                   (level1design,level1estimate,[('spm_mat_file','spm_mat_file')]),
                   (level1estimate,contrastestimate,[('spm_mat_file','spm_mat_file'),
                                                   ('beta_images','beta_images'),
-                                                  ('mean_residual_image','mean_residual_image')]),
-
-                                                  
+                                                  ('mean_residual_image','mean_residual_image')]),                                               
                   (contrastestimate, threshold,[('spm_mat_file','spm_mat_file'),
                                                   ('spmT_images', 'spmT_images')]),
                   (level1estimate, threshold,[('RPVimage', 'RPVimage'),
