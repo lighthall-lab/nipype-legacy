@@ -350,7 +350,7 @@ class BootstrapTimeSeries(BaseInterface):
             
         new_img = nb.Nifti1Image(new_volume, img.get_affine(), img.get_header())
         _, base, ext = split_filename(self.inputs.original_volume)
-        nb.save(new_img, base + "_thresholded.nii")
+        nb.save(new_img, base + "_bootstrap.nii")
             
         runtime.returncode = 0
         return runtime
@@ -358,6 +358,6 @@ class BootstrapTimeSeries(BaseInterface):
     def _list_outputs(self):
         outputs = self._outputs().get()
         _, base, ext = split_filename(self.inputs.original_volume)
-        outputs['bootstraped_volume'] = os.path.abspath(base + "_thresholded.nii")
+        outputs['bootstraped_volume'] = os.path.abspath(base + "_bootstrap.nii")
         return outputs
 #comment
