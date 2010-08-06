@@ -152,6 +152,7 @@ class EstimateModelInputSpec(SPMCommandInputSpec):
     spm_mat_file = File(exists=True, field='spmmat', desc='absolute path to SPM.mat', copyfile=True)
     estimation_method = traits.Dict(traits.Enum('Classical', 'Bayesian2', 'Bayesian'), field='method',
                                      desc='Classical, Bayesian2, Bayesian (dict)')
+    save_residual_images = traits.Bool(False, usedefault=True)
     flags = traits.Str(desc='optional arguments (opt)')
 
 class EstimateModelOutputSpec(TraitedSpec):
@@ -189,6 +190,13 @@ class EstimateModel(SPMCommand):
             else:
                 return val
         return val
+    
+    def _run_interface(self, runtime):
+        runtime = super(EstimateModel, self)._run_interface(runtime)
+        if not self.inputs.save_residual_images:
+            for file in glob("ResI*"):
+                os.remove(file)
+        return runtime
 
     def _parse_inputs(self):
         """validate spm realign options if set to None ignore
@@ -215,8 +223,9 @@ class EstimateModel(SPMCommand):
         outputs['RPVimage'] = rpv
         spm = os.path.join(pth, 'SPM.mat')
         outputs['spm_mat_file'] = spm
-        outputs['residual_images'] = glob(os.path.join(pth,"ResI*.img"))
-        outputs['residual_images'].sort()
+        if self.inputs.save_residual_images:
+            outputs['residual_images'] = glob(os.path.join(pth,"ResI*.img"))
+            outputs['residual_images'].sort()
         return outputs
 
 class EstimateContrastInputSpec(SPMCommandInputSpec):
