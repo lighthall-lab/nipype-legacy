@@ -225,6 +225,7 @@ parameters of the model.
 
 level1estimate_detrend = pe.Node(interface=spm.EstimateModel(), name="level1estimate_detrend")
 level1estimate_detrend.inputs.estimation_method = {'Classical' : 1}
+level1estimate_detrend.inputs.save_residual_images = True
 
 join_residuals = pe.Node(interface=fsl.Merge(dimension="t"), name="join_residuals")
 
@@ -274,7 +275,8 @@ threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction
 
 bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
 bootstrap.inputs.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
-bootstrap.iterables = ('id',range(10))
+id = range(100)
+bootstrap.iterables = ('id',id)
 
 """
 Setup the pipeline
@@ -345,8 +347,9 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
 l2pipeline = pe.Workflow(name="level2")
 l2pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
 
-l2source = pe.Node(nio.DataGrabber(infields=["subject_id"]),name="l2source")
-l2source.inputs.template=os.path.abspath('bootstrapping/workingdir/level1/_subject_id_%s/_id_*/threshold/thresholded_map.img')
+l2source = pe.Node(nio.DataGrabber(infields=["subject_id", "id"]),name="l2source")
+l2source.inputs.template=os.path.abspath('bootstrapping/workingdir/level1/_subject_id_%s/_id_%d/threshold/thresholded_map.img')
+l2source.inputs.id = id
 l2source.iterables = [('subject_id',subject_list)]
 frequency_map = pe.Node(misc.FrequencyMap(), name="frequency_map")
 
@@ -367,4 +370,5 @@ function needs to be called.
 
 if __name__ == '__main__':
     l1pipeline.run()
+    l2pipeline.write_graph()
     l2pipeline.run()
