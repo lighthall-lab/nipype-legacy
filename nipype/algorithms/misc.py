@@ -382,7 +382,7 @@ class FrequencyMap(BaseInterface):
                 frequency_map = np.zeros(binary_volume.shape)
             frequency_map += binary_volume
         
-        frequency_map /= len(self.inputs.binary_images)
+        frequency_map /= float(len(self.inputs.binary_images))
         
         new_img = nb.Nifti1Image(frequency_map, img.get_affine(), img.get_header())
         nb.save(new_img, "frequency_map.nii")
