@@ -323,7 +323,7 @@ class Dissimilarity(BaseInterface):
 
 class BootstrapTimeSeriesInputSpec(TraitedSpec):
     original_volume = File(exists=True, desc="source volume for bootstrapping", mandatory=True)
-    subject_info = traits.Any()
+    blocks_info = traits.Any()
     id = traits.Int()
 
 class BootstrapTimeSeriesOutputSpec(TraitedSpec):
@@ -339,9 +339,9 @@ class BootstrapTimeSeries(BaseInterface):
         
         new_volume = original_volume.copy()
         
-        for ci, condition_name in enumerate(self.inputs.subject_info[0].conditions):
-            block_size = self.inputs.subject_info[0].durations[ci][0]
-            onsets = self.inputs.subject_info[0].onsets[ci]
+        for ci in range(len(self.inputs.blocks_info.duration)):
+            block_size = self.inputs.blocks_info.duration[ci]
+            onsets = self.inputs.blocks_info.onsets[ci]
             
             for onset in onsets:
                 for rel_i in range(block_size):
@@ -379,11 +379,16 @@ class FrequencyMap(BaseInterface):
             binary_volume = (img.get_data() != 0)
             
             if frequency_map == None:
-                frequency_map = np.zeros(binary_volume.shape())
+                frequency_map = np.zeros(binary_volume.shape)
             frequency_map += binary_volume
+        
+        frequency_map /= len(self.inputs.binary_images)
         
         new_img = nb.Nifti1Image(frequency_map, img.get_affine(), img.get_header())
         nb.save(new_img, "frequency_map.nii")
+        
+        runtime.returncode = 0
+        return runtime
         
     def _list_outputs(self):
         outputs = self._outputs().get()
