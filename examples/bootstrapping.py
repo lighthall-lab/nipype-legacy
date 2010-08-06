@@ -12,6 +12,7 @@ nipype tutorial directory:
     python spm_tutorial.py
 
 """
+from copy import deepcopy
 
 
 """Import necessary modules from nipype."""
@@ -161,37 +162,29 @@ paradigm was used for every participant.
 """
 
 from nipype.interfaces.base import Bunch
-from copy import deepcopy
-def subjectinfo(subject_id):
-    print "Subject ID: %s\n"%str(subject_id)
-    names = ['Task-Odd','Task-Even']
-    onsets = [[],[]]
-    for r in range(4):
-        onsets[0] += range(5 + r*85,80+r*85,20)
-        onsets[1] += range(15 + r*85,80+r*85,20)
-    output = [Bunch(conditions=names,
-                        onsets=deepcopy(onsets),
-                        durations=[[5] for s in names],
+
+names = ['Task-Odd','Task-Even']
+onsets = [[],[]]
+for r in range(4):
+    onsets[0] += range(5 + r*85,80+r*85,20)
+    onsets[1] += range(15 + r*85,80+r*85,20)
+subjectinfo = [Bunch(conditions=names,
+                    onsets=onsets,
+                    durations=[[5] for s in names],
+                    amplitudes=None,
+                    tmod=None,
+                    pmod=None,
+                    regressor_names=None,
+                    regressors=None)]
+
+subjectinfo_empty = [Bunch(conditions=[],
+                        onsets=[],
+                        durations=[],
                         amplitudes=None,
                         tmod=None,
                         pmod=None,
                         regressor_names=None,
-                        regressors=None)]
-    return output
-
-def subjectinfo_empty(subject_id):
-    output = []
-    for r in range(4):
-        output.insert(r,
-                      Bunch(conditions=[],
-                            onsets=[],
-                            durations=[],
-                            amplitudes=None,
-                            tmod=None,
-                            pmod=None,
-                            regressor_names=None,
-                            regressors=None))
-    return output
+                        regressors=None) for _ in range(4)]
 
 """Setup the contrast structure that needs to be evaluated. This is a
 list of lists. The inner list specifies the contrasts and has the
@@ -214,6 +207,7 @@ modelspec_detrend.inputs.input_units             = 'secs'
 modelspec_detrend.inputs.output_units            = 'secs'
 modelspec_detrend.inputs.time_repetition         = 3.
 modelspec_detrend.inputs.high_pass_filter_cutoff = 120
+modelspec_detrend.inputs.subject_info            = subjectinfo_empty
 
 """Generate a first level SPM.mat file for analysis
 :class:`nipype.interfaces.spm.Level1Design`.
@@ -249,6 +243,7 @@ modelspec = pe.Node(interface=model.SpecifyModel(), name= "modelspec")
 modelspec.inputs.input_units             = 'scans'
 modelspec.inputs.output_units            = 'scans'
 modelspec.inputs.time_repetition         = 3.
+modelspec.inputs.subject_info    = subjectinfo
 
 """Generate a first level SPM.mat file for analysis
 :class:`nipype.interfaces.spm.Level1Design`.
@@ -278,7 +273,8 @@ contrastestimate.inputs.contrasts = contrasts
 threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction = False), name="threshold")
 
 bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
-bootstrap.iterables = ('id',range(100))
+bootstrap.inputs.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
+bootstrap.iterables = ('id',range(10))
 
 """
 Setup the pipeline
@@ -312,8 +308,7 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                                        ('realigned_files','apply_to_files')]),
         		  (datasource,coregister,[('struct', 'target')]),
                   (coregister,smooth, [('coregistered_files', 'in_files')]),
-                  (infosource,modelspec_detrend,[('subject_id','subject_id'),
-                                                 (('subject_id', subjectinfo_empty),'subject_info')]),
+                  (infosource,modelspec_detrend,[('subject_id','subject_id')]),
                   (realign,modelspec_detrend,[('realignment_parameters','realignment_parameters')]),
                   (realign,art,[('realignment_parameters','realignment_parameters')]),
                   (coregister,art,[('coregistered_files','realigned_files')]),
@@ -325,12 +320,10 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (join_residuals, img2float, [('merged_file', 'in_file')]),
                   
                   (img2float, bootstrap, [('out_file', 'original_volume')]),
-                  (infosource,bootstrap,[(('subject_id', subjectinfo),'subject_info')]),
                   
                   (bootstrap, modelspec, [('bootstraped_volume', 'functional_runs')]),
 #                  (join_residuals, modelspec, [('merged_file', 'functional_runs')]),
-                  (infosource,modelspec,[('subject_id','subject_id'),
-                                         (('subject_id', subjectinfo),'subject_info')]),
+                  (infosource,modelspec,[('subject_id','subject_id')]),
                   (modelspec,level1design,[('session_info','session_info')]),
                   (level1estimate_detrend, level1design, [('mask_image', 'mask_image')]),
                   (level1design,level1estimate,[('spm_mat_file','spm_mat_file')]),
