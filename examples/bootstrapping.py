@@ -217,6 +217,7 @@ level1design_detrend = pe.Node(interface=spm.Level1Design(), name= "level1design
 level1design_detrend.inputs.timing_units       = modelspec_detrend.inputs.output_units
 level1design_detrend.inputs.interscan_interval = modelspec_detrend.inputs.time_repetition
 level1design_detrend.inputs.bases              = {'hrf':{'derivs': [0,0]}}
+level1design_detrend.inputs.model_serial_correlations = "AR(1)"
 
 
 """Use :class:`nipype.interfaces.spm.EstimateModel` to determine the
@@ -254,6 +255,7 @@ level1design = pe.Node(interface=spm.Level1Design(), name= "level1design")
 level1design.inputs.timing_units       = modelspec.inputs.output_units
 level1design.inputs.interscan_interval = modelspec.inputs.time_repetition
 level1design.inputs.bases              = {'hrf':{'derivs': [0,0]}}
+level1design_detrend.inputs.model_serial_correlations = "none"
 
 
 """Use :class:`nipype.interfaces.spm.EstimateModel` to determine the
@@ -275,7 +277,7 @@ threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction
 
 bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
 bootstrap.inputs.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
-id = range(100)
+id = range(150)
 bootstrap.iterables = ('id',id)
 
 """
@@ -370,5 +372,5 @@ function needs to be called.
 
 if __name__ == '__main__':
     l1pipeline.run()
-    l2pipeline.write_graph()
+    l1pipeline.write_graph()
     l2pipeline.run()
