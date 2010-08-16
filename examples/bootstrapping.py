@@ -355,8 +355,12 @@ l2source.inputs.id = id
 l2source.iterables = [('subject_id',subject_list)]
 frequency_map = pe.Node(misc.FrequencyMap(), name="frequency_map")
 
+simple_threshold = pe.Node(misc.SimpleThreshold(), name="simple_threshold")
+simple_threshold.iterables = [('threshold',[0.9, 0.95, 0.99])]
+
 l2pipeline.connect([
-                    (l2source,frequency_map, [('outfiles', 'binary_images')])
+                    (l2source,frequency_map, [('outfiles', 'binary_images')]),
+                    (frequency_map, simple_threshold, [('frequency_map','volumes')])
                     ])
 
 """
