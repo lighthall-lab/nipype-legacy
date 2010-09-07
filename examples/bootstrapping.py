@@ -13,6 +13,7 @@ nipype tutorial directory:
 
 """
 from copy import deepcopy
+from nipype.interfaces.base import Bunch
 
 
 """Import necessary modules from nipype."""
@@ -74,46 +75,9 @@ nifti filename through a template '%s.nii'. So 'f3' would become
 
 """
 
-# Specify the location of the data.
-data_dir = os.path.abspath('data')
-# Specify the subject directories
-subject_list = ['s1']
-# Map field names to individual subject runs.
-info = dict(func=[['subject_id', ['f3','f5','f7','f10']]],
-            struct=[['subject_id','struct']])
 
-infosource = pe.Node(interface=util.IdentityInterface(fields=['subject_id']),
-                     name="infosource")
 
-"""Here we set up iteration over all the subjects. The following line
-is a particular example of the flexibility of the system.  The
-``datasource`` attribute ``iterables`` tells the pipeline engine that
-it should repeat the analysis on each of the items in the
-``subject_list``. In the current example, the entire first level
-preprocessing and estimation will be repeated for each subject
-contained in subject_list.
-"""
-
-infosource.iterables = ('subject_id', subject_list)
-
-"""
-Preprocessing pipeline nodes
-----------------------------
-
-Now we create a :class:`nipype.interfaces.io.DataSource` object and
-fill in the information from above about the layout of our data.  The
-:class:`nipype.pipeline.NodeWrapper` module wraps the interface object
-and provides additional housekeeping and pipeline specific
-functionality.
-"""
-
-datasource = pe.Node(interface=nio.DataGrabber(infields=['subject_id'],
-                                               outfields=['func', 'struct']),
-                     name = 'datasource')
-datasource.inputs.base_directory = data_dir
-datasource.inputs.template = '%s/%s.nii'
-datasource.inputs.template_args = info
-
+preproc_pipeline = pe.Workflow(name="preproc")
 
 """Use :class:`nipype.interfaces.spm.Realign` for motion correction
 and register all images to the mean image.
@@ -150,32 +114,13 @@ coregister.inputs.jobtype = 'estimate'
 
 smooth = pe.Node(interface=spm.Smooth(fwhm = 4), name = "smooth")
 
-"""
-Set up analysis components
---------------------------
+preproc_pipeline.connect([(realign,coregister,[('mean_image', 'source'),
+                                       ('realigned_files','apply_to_files')]),
+                  (coregister,smooth, [('coregistered_files', 'in_files')]),
+                  (realign,art,[('realignment_parameters','realignment_parameters')]),
+                  (coregister,art,[('coregistered_files','realigned_files')])])
 
-Here we create a function that returns subject-specific information
-about the experimental paradigm. This is used by the
-:class:`nipype.interfaces.spm.SpecifyModel` to create the information
-necessary to generate an SPM design matrix. In this tutorial, the same
-paradigm was used for every participant.
-"""
-
-from nipype.interfaces.base import Bunch
-
-names = ['Task-Odd','Task-Even']
-onsets = [[],[]]
-for r in range(4):
-    onsets[0] += range(5 + r*85,80+r*85,20)
-    onsets[1] += range(15 + r*85,80+r*85,20)
-subjectinfo = [Bunch(conditions=names,
-                    onsets=onsets,
-                    durations=[[5] for s in names],
-                    amplitudes=None,
-                    tmod=None,
-                    pmod=None,
-                    regressor_names=None,
-                    regressors=None)]
+detrend_pipeline = pe.Workflow(name="detrend")
 
 subjectinfo_empty = [Bunch(conditions=[],
                         onsets=[],
@@ -186,22 +131,7 @@ subjectinfo_empty = [Bunch(conditions=[],
                         regressor_names=None,
                         regressors=None) for _ in range(4)]
 
-"""Setup the contrast structure that needs to be evaluated. This is a
-list of lists. The inner list specifies the contrasts and has the
-following format - [Name,Stat,[list of condition names],[weights on
-those conditions]. The condition names must match the `names` listed
-in the `subjectinfo` function described above.
-"""
-
-cont1 = ('Task>Baseline','T', ['Task-Odd','Task-Even'],[0.5,0.5])
-cont2 = ('Task-Odd>Task-Even','T', ['Task-Odd','Task-Even'],[1,-1])
-contrasts = [cont1,cont2]
-
-"""Generate SPM-specific design information using
-:class:`nipype.interfaces.spm.SpecifyModel`.
-"""
-
-modelspec_detrend = pe.Node(interface=model.SpecifyModel(), name= "modelspec_detrend")
+modelspec_detrend = pe.Node(interface=model.SpecifyModel(), name= "modelspec")
 modelspec_detrend.inputs.concatenate_runs        = True
 modelspec_detrend.inputs.input_units             = 'secs'
 modelspec_detrend.inputs.output_units            = 'secs'
@@ -213,7 +143,7 @@ modelspec_detrend.inputs.subject_info            = subjectinfo_empty
 :class:`nipype.interfaces.spm.Level1Design`.
 """
 
-level1design_detrend = pe.Node(interface=spm.Level1Design(), name= "level1design_detrend")
+level1design_detrend = pe.Node(interface=spm.Level1Design(), name= "level1design")
 level1design_detrend.inputs.timing_units       = modelspec_detrend.inputs.output_units
 level1design_detrend.inputs.interscan_interval = modelspec_detrend.inputs.time_repetition
 level1design_detrend.inputs.bases              = {'hrf':{'derivs': [0,0]}}
@@ -236,6 +166,65 @@ img2float = pe.Node(interface=fsl.ImageMaths(out_data_type='float',
                                              op_string = '',
                                              suffix='_dtype'),
                        name='img2float')
+
+
+detrend_pipeline.connect([(modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
+                  (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
+                  (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
+                  (join_residuals, img2float, [('merged_file', 'in_file')])])
+
+names = ['Task-Odd','Task-Even']
+onsets = [[],[]]
+for r in range(4):
+    onsets[0] += range(5 + r*85,80+r*85,20)
+    onsets[1] += range(15 + r*85,80+r*85,20)
+subjectinfo = [Bunch(conditions=names,
+                    onsets=onsets,
+                    durations=[[5] for s in names],
+                    amplitudes=None,
+                    tmod=None,
+                    pmod=None,
+                    regressor_names=None,
+                    regressors=None)]
+
+bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
+bootstrap.inputs.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
+id = range(150)
+bootstrap.iterables = ('id',id)
+
+analysis_pipeline = pe.Workflow(name="analysis")
+
+"""
+Set up analysis components
+--------------------------
+
+Here we create a function that returns subject-specific information
+about the experimental paradigm. This is used by the
+:class:`nipype.interfaces.spm.SpecifyModel` to create the information
+necessary to generate an SPM design matrix. In this tutorial, the same
+paradigm was used for every participant.
+"""
+
+
+
+
+
+"""Setup the contrast structure that needs to be evaluated. This is a
+list of lists. The inner list specifies the contrasts and has the
+following format - [Name,Stat,[list of condition names],[weights on
+those conditions]. The condition names must match the `names` listed
+in the `subjectinfo` function described above.
+"""
+
+cont1 = ('Task>Baseline','T', ['Task-Odd','Task-Even'],[0.5,0.5])
+cont2 = ('Task-Odd>Task-Even','T', ['Task-Odd','Task-Even'],[1,-1])
+contrasts = [cont1,cont2]
+
+"""Generate SPM-specific design information using
+:class:`nipype.interfaces.spm.SpecifyModel`.
+"""
+
+
 
 """Generate SPM-specific design information using
 :class:`nipype.interfaces.spm.SpecifyModel`.
@@ -275,10 +264,20 @@ contrastestimate.inputs.contrasts = contrasts
 
 threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction = False), name="threshold")
 
-bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
-bootstrap.inputs.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
-id = range(150)
-bootstrap.iterables = ('id',id)
+analysis_pipeline.connect([(modelspec,level1design,[('session_info','session_info')]),
+                  
+                  (level1design,level1estimate,[('spm_mat_file','spm_mat_file')]),
+                  (level1estimate,contrastestimate,[('spm_mat_file','spm_mat_file'),
+                                                  ('beta_images','beta_images'),
+                                                  ('mean_residual_image','mean_residual_image')]),                                               
+                  (contrastestimate, threshold,[('spm_mat_file','spm_mat_file'),
+                                                  ('spmT_images', 'spmT_images')]),
+                  (level1estimate, threshold,[('RPVimage', 'RPVimage'),
+                                                ('mask_image','mask_image'),
+                                                ('beta_images','beta_images'),
+                                                ('mean_residual_image','mean_residual_image')])])
+
+
 
 """
 Setup the pipeline
@@ -303,45 +302,82 @@ links between the processes, i.e., how data should flow in and out of
 the processing nodes.
 """
 
+# Specify the location of the data.
+data_dir = os.path.abspath('data')
+# Specify the subject directories
+subject_list = ['s1']
+# Map field names to individual subject runs.
+info = dict(func=[['subject_id', ['f3','f5','f7','f10']]],
+            struct=[['subject_id','struct']])
+
+infosource = pe.Node(interface=util.IdentityInterface(fields=['subject_id']),
+                     name="infosource")
+
+infosource.iterables = ('subject_id', subject_list)
+
+datasource = pe.Node(interface=nio.DataGrabber(infields=['subject_id'],
+                                               outfields=['func', 'struct']),
+                     name = 'datasource')
+datasource.inputs.base_directory = data_dir
+datasource.inputs.template = '%s/%s.nii'
+datasource.inputs.template_args = info
+
 l1pipeline = pe.Workflow(name="level1")
 l1pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
 
-l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
-                  (datasource,realign,[('func','in_files')]),
-                  (realign,coregister,[('mean_image', 'source'),
-                                       ('realigned_files','apply_to_files')]),
-        		  (datasource,coregister,[('struct', 'target')]),
-                  (coregister,smooth, [('coregistered_files', 'in_files')]),
-                  (infosource,modelspec_detrend,[('subject_id','subject_id')]),
-                  (realign,modelspec_detrend,[('realignment_parameters','realignment_parameters')]),
-                  (realign,art,[('realignment_parameters','realignment_parameters')]),
-                  (coregister,art,[('coregistered_files','realigned_files')]),
-                  (art,modelspec_detrend,[('outlier_files','outlier_files')]),
-                  (smooth,modelspec_detrend,[('smoothed_files','functional_runs')]),                  
-                  (modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
-                  (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
-                  (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
-                  (join_residuals, img2float, [('merged_file', 'in_file')]),
-                  
-                  (img2float, bootstrap, [('out_file', 'original_volume')]),
-                  
-                  (bootstrap, modelspec, [('bootstraped_volume', 'functional_runs')]),
-#                  (join_residuals, modelspec, [('merged_file', 'functional_runs')]),
-                  (infosource,modelspec,[('subject_id','subject_id')]),
-                  (modelspec,level1design,[('session_info','session_info')]),
-                  (level1estimate_detrend, level1design, [('mask_image', 'mask_image')]),
-                  (level1design,level1estimate,[('spm_mat_file','spm_mat_file')]),
-                  (level1estimate,contrastestimate,[('spm_mat_file','spm_mat_file'),
-                                                  ('beta_images','beta_images'),
-                                                  ('mean_residual_image','mean_residual_image')]),                                               
-                  (contrastestimate, threshold,[('spm_mat_file','spm_mat_file'),
-                                                  ('spmT_images', 'spmT_images')]),
-                  (level1estimate, threshold,[('RPVimage', 'RPVimage'),
-                                                ('mask_image','mask_image'),
-                                                ('beta_images','beta_images'),
-                                                ('mean_residual_image','mean_residual_image')])
-                  ])
+split_analysis = analysis_pipeline.clone("split_analysis")
 
+standard_analysis = analysis_pipeline.clone("standard_analysis")
+standard_analysis.inputs.modelspec.high_pass_filter_cutoff = 120
+
+subjectinfo_standard = []
+names = ['Task-Odd','Task-Even']
+for r in range(4):
+    onsets = [range(15,240,60),range(45,240,60)]
+    subjectinfo_standard.insert(r,
+                  Bunch(conditions=names,
+                        onsets=deepcopy(onsets),
+                        durations=[[15] for s in names],
+                        amplitudes=None,
+                        tmod=None,
+                        pmod=None,
+                        regressor_names=None,
+                        regressors=None))
+    
+standard_analysis.inputs.modelspec.subject_info = subjectinfo_standard
+standard_analysis.inputs.modelspec.concatenate_runs        = True
+
+bootstrap_pipeline = pe.Workflow(name="bootstrap")
+
+bootstrap_pipeline.connect([
+                            
+# uncomment to break!
+#                            (detrend_pipeline, split_analysis, [('img2float.out_file', 'modelspec.functional_runs'),
+#                                                                ('level1estimate_detrend.mask_image', 'level1design.mask_image')]),
+                  
+                  (detrend_pipeline, bootstrap, [('img2float.out_file', 'original_volume')]),
+                  
+                  (bootstrap, analysis_pipeline, [('bootstraped_volume', 'modelspec.functional_runs')]),
+                  (detrend_pipeline, analysis_pipeline, [('level1estimate_detrend.mask_image', 'level1design.mask_image')])])
+
+l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
+                  (datasource, preproc_pipeline, [('func', 'realign.in_files')]),
+                  (datasource, preproc_pipeline, [('struct', 'coregister.target')]),
+                  
+                  (preproc_pipeline, bootstrap_pipeline, [('realign.realignment_parameters','detrend.modelspec.realignment_parameters'),
+                                                          ('art.outlier_files','detrend.modelspec.outlier_files'),
+                                                          ('smooth.smoothed_files','detrend.modelspec.functional_runs')]),
+                                                          
+                  (preproc_pipeline, standard_analysis, [('realign.realignment_parameters','modelspec.realignment_parameters'),
+                                                          ('art.outlier_files','modelspec.outlier_files'),
+                                                          ('smooth.smoothed_files','modelspec.functional_runs')]),
+                                                          
+                  (infosource, standard_analysis, [('subject_id', 'modelspec.subject_id')]),               
+                  
+                  (infosource, bootstrap_pipeline, [('subject_id', 'detrend.modelspec.subject_id'),
+                                                    #('subject_id', 'split_analysis.modelspec.subject_id'),
+                                                    ('subject_id', 'analysis.modelspec.subject_id')]),
+                  ])
 
 
 
