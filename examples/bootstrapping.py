@@ -131,7 +131,7 @@ subjectinfo_empty = [Bunch(conditions=[],
                         regressor_names=None,
                         regressors=None) for _ in range(4)]
 
-modelspec_detrend = pe.Node(interface=model.SpecifyModel(), name= "modelspec")
+modelspec_detrend = pe.Node(interface=model.SpecifyModel(), name= "modelspecd")
 modelspec_detrend.inputs.concatenate_runs        = True
 modelspec_detrend.inputs.input_units             = 'secs'
 modelspec_detrend.inputs.output_units            = 'secs'
@@ -143,7 +143,7 @@ modelspec_detrend.inputs.subject_info            = subjectinfo_empty
 :class:`nipype.interfaces.spm.Level1Design`.
 """
 
-level1design_detrend = pe.Node(interface=spm.Level1Design(), name= "level1design")
+level1design_detrend = pe.Node(interface=spm.Level1Design(), name= "level1designd")
 level1design_detrend.inputs.timing_units       = modelspec_detrend.inputs.output_units
 level1design_detrend.inputs.interscan_interval = modelspec_detrend.inputs.time_repetition
 level1design_detrend.inputs.bases              = {'hrf':{'derivs': [0,0]}}
@@ -154,7 +154,7 @@ level1design_detrend.inputs.model_serial_correlations = "AR(1)"
 parameters of the model.
 """
 
-level1estimate_detrend = pe.Node(interface=spm.EstimateModel(), name="level1estimate_detrend")
+level1estimate_detrend = pe.Node(interface=spm.EstimateModel(), name="level1estimated")
 level1estimate_detrend.inputs.estimation_method = {'Classical' : 1}
 level1estimate_detrend.inputs.save_residual_images = True
 
@@ -325,58 +325,58 @@ datasource.inputs.template_args = info
 l1pipeline = pe.Workflow(name="level1")
 l1pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
 
-split_analysis = analysis_pipeline.clone("split_analysis")
-
-standard_analysis = analysis_pipeline.clone("standard_analysis")
-standard_analysis.inputs.modelspec.high_pass_filter_cutoff = 120
-
-subjectinfo_standard = []
-names = ['Task-Odd','Task-Even']
-for r in range(4):
-    onsets = [range(15,240,60),range(45,240,60)]
-    subjectinfo_standard.insert(r,
-                  Bunch(conditions=names,
-                        onsets=deepcopy(onsets),
-                        durations=[[15] for s in names],
-                        amplitudes=None,
-                        tmod=None,
-                        pmod=None,
-                        regressor_names=None,
-                        regressors=None))
-    
-standard_analysis.inputs.modelspec.subject_info = subjectinfo_standard
-standard_analysis.inputs.modelspec.concatenate_runs        = True
+#split_analysis = analysis_pipeline.clone("split_analysis")
+#
+#standard_analysis = analysis_pipeline.clone("standard_analysis")
+#standard_analysis.inputs.modelspec.high_pass_filter_cutoff = 120
+#
+#subjectinfo_standard = []
+#names = ['Task-Odd','Task-Even']
+#for r in range(4):
+#    onsets = [range(15,240,60),range(45,240,60)]
+#    subjectinfo_standard.insert(r,
+#                  Bunch(conditions=names,
+#                        onsets=deepcopy(onsets),
+#                        durations=[[15] for s in names],
+#                        amplitudes=None,
+#                        tmod=None,
+#                        pmod=None,
+#                        regressor_names=None,
+#                        regressors=None))
+#    
+#standard_analysis.inputs.modelspec.subject_info = subjectinfo_standard
+#standard_analysis.inputs.modelspec.concatenate_runs        = True
 
 bootstrap_pipeline = pe.Workflow(name="bootstrap")
 
 bootstrap_pipeline.connect([
                             
 # uncomment to break!
-#                            (detrend_pipeline, split_analysis, [('img2float.out_file', 'modelspec.functional_runs'),
+#                  (detrend_pipeline, split_analysis, [('img2float.out_file', 'modelspec.functional_runs'),
 #                                                                ('level1estimate_detrend.mask_image', 'level1design.mask_image')]),
                   
                   (detrend_pipeline, bootstrap, [('img2float.out_file', 'original_volume')]),
                   
                   (bootstrap, analysis_pipeline, [('bootstraped_volume', 'modelspec.functional_runs')]),
-                  (detrend_pipeline, analysis_pipeline, [('level1estimate_detrend.mask_image', 'level1design.mask_image')])])
+                  (detrend_pipeline, analysis_pipeline, [('level1estimated.mask_image', 'level1design.mask_image')])])
 
 l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (datasource, preproc_pipeline, [('func', 'realign.in_files')]),
                   (datasource, preproc_pipeline, [('struct', 'coregister.target')]),
                   
-                  (preproc_pipeline, bootstrap_pipeline, [('realign.realignment_parameters','detrend.modelspec.realignment_parameters'),
-                                                          ('art.outlier_files','detrend.modelspec.outlier_files'),
-                                                          ('smooth.smoothed_files','detrend.modelspec.functional_runs')]),
+                  (preproc_pipeline, bootstrap_pipeline, [('realign.realignment_parameters','detrend.modelspecd.realignment_parameters'),
+                                                          ('art.outlier_files','detrend.modelspecd.outlier_files'),
+                                                          ('smooth.smoothed_files','detrend.modelspecd.functional_runs')]),
                                                           
-                  (preproc_pipeline, standard_analysis, [('realign.realignment_parameters','modelspec.realignment_parameters'),
-                                                          ('art.outlier_files','modelspec.outlier_files'),
-                                                          ('smooth.smoothed_files','modelspec.functional_runs')]),
-                                                          
-                  (infosource, standard_analysis, [('subject_id', 'modelspec.subject_id')]),               
+#                  (preproc_pipeline, standard_analysis, [('realign.realignment_parameters','modelspec.realignment_parameters'),
+#                                                          ('art.outlier_files','modelspec.outlier_files'),
+#                                                          ('smooth.smoothed_files','modelspec.functional_runs')]),
+#                                                          
+#                  (infosource, standard_analysis, [('subject_id', 'modelspec.subject_id')]),               
                   
-                  (infosource, bootstrap_pipeline, [('subject_id', 'detrend.modelspec.subject_id'),
-                                                    #('subject_id', 'split_analysis.modelspec.subject_id'),
-                                                    ('subject_id', 'analysis.modelspec.subject_id')]),
+#                  (infosource, bootstrap_pipeline, [('subject_id', 'detrend.modelspec.subject_id'),
+#                                                    ('subject_id', 'split_analysis.modelspec.subject_id'),
+#                                                    ('subject_id', 'analysis.modelspec.subject_id')]),
                   ])
 
 
