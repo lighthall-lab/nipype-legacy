@@ -206,6 +206,13 @@ class EstimateModel(SPMCommand):
             for file in glob("ResI*"):
                 os.remove(file)
         return runtime
+    
+    def _make_matlab_command(self, content, postscript=None):
+        mscript = super(EstimateModel, self)._make_matlab_command(content, postscript=postscript)
+        if self.inputs.save_residual_images:
+            return mscript.replace("spm('Defaults','fMRI');", "spm('Defaults','fMRI');\n spm_get_defaults('stats.maxres', Inf);")
+        else:
+            return mscript
 
     def _parse_inputs(self):
         """validate spm realign options if set to None ignore
