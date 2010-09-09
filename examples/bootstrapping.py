@@ -20,7 +20,6 @@ from nipype.interfaces.base import Bunch
 
 import nipype.interfaces.io as nio           # Data i/o
 import nipype.interfaces.spm as spm          # spm
-import nipype.interfaces.matlab as mlab      # how to run matlab
 import nipype.interfaces.fsl as fsl          # fsl
 import nipype.interfaces.utility as util     # utility
 import nipype.pipeline.engine as pe          # pypeline engine
@@ -29,67 +28,11 @@ import nipype.algorithms.modelgen as model   # model specification
 import nipype.algorithms.misc as misc
 import os                                    # system functions
 
-"""
-
-Preliminaries
--------------
-
-Confirm package dependencies are installed.  (This is only for the
-tutorial, rarely would you put this in your own code.)
-"""
-
-from nipype.utils.misc import package_check
-
-package_check('numpy', '1.3', 'tutorial1')
-package_check('scipy', '0.7', 'tutorial1')
-package_check('networkx', '1.0', 'tutorial1')
-package_check('IPython', '0.10', 'tutorial1')
-
-"""Set any package specific configuration. The output file format
-for FSL routines is being set to uncompressed NIFTI and a specific
-version of matlab is being used. The uncompressed format is required
-because SPM does not handle compressed NIFTI.
-"""
-
-# Tell fsl to generate all output in uncompressed nifti format
-#print fsl.Info.version()
-fsl.FSLCommand.set_default_output_type('NIFTI')
-
-# Set the way matlab should be called
-mlab.MatlabCommand.set_default_matlab_cmd("matlab -nodesktop -nosplash")
-
-"""The nipype tutorial contains data for two subjects.  Subject data
-is in two subdirectories, ``s1`` and ``s2``.  Each subject directory
-contains four functional volumes: f3.nii, f5.nii, f7.nii, f10.nii. And
-one anatomical volume named struct.nii.
-
-Below we set some variables to inform the ``datasource`` about the
-layout of our data.  We specify the location of the data, the subject
-sub-directories and a dictionary that maps each run to a mnemonic (or
-field) for the run type (``struct`` or ``func``).  These fields become
-the output fields of the ``datasource`` node in the pipeline.
-
-In the example below, run 'f3' is of type 'func' and gets mapped to a
-nifti filename through a template '%s.nii'. So 'f3' would become
-'f3.nii'.
-
-"""
-
-
 
 preproc_pipeline = pe.Workflow(name="preproc")
 
-"""Use :class:`nipype.interfaces.spm.Realign` for motion correction
-and register all images to the mean image.
-"""
-
 realign = pe.Node(interface=spm.Realign(), name="realign")
 realign.inputs.register_to_mean = True
-
-"""Use :class:`nipype.algorithms.rapidart` to determine which of the
-images in the functional series are outliers based on deviations in
-intensity or movement.
-"""
 
 art = pe.Node(interface=ra.ArtifactDetect(), name="art")
 art.inputs.use_differences      = [True,True]
@@ -99,60 +42,27 @@ art.inputs.zintensity_threshold = 3
 art.inputs.mask_type            = 'spm_global'
 art.inputs.parameter_source     = 'SPM'
 
-
-"""Use :class:`nipype.interfaces.spm.Coregister` to perform a rigid
-body registration of the functional data to the structural data.
-"""
-
 coregister = pe.Node(interface=spm.Coregister(), name="coregister")
 coregister.inputs.jobtype = 'estimate'
 
-
-"""Smooth the functional data using
-:class:`nipype.interfaces.spm.Smooth`.
-"""
-
 smooth = pe.Node(interface=spm.Smooth(fwhm = 4), name = "smooth")
 
-preproc_pipeline.connect([(realign,coregister,[('mean_image', 'source'),
-                                       ('realigned_files','apply_to_files')]),
-                  (coregister,smooth, [('coregistered_files', 'in_files')]),
-                  (realign,art,[('realignment_parameters','realignment_parameters')]),
-                  (coregister,art,[('coregistered_files','realigned_files')])])
+preproc_pipeline.connect([(realign, coregister, [('mean_image', 'source'),
+                                                 ('realigned_files', 'apply_to_files')]),
+                          (coregister, smooth, [('coregistered_files', 'in_files')]),
+                          (realign, art, [('realignment_parameters', 'realignment_parameters')]),
+                          (coregister, art, [('coregistered_files', 'realigned_files')])])
+
 
 detrend_pipeline = pe.Workflow(name="detrend")
 
-subjectinfo_empty = [Bunch(conditions=[],
-                        onsets=[],
-                        durations=[],
-                        amplitudes=None,
-                        tmod=None,
-                        pmod=None,
-                        regressor_names=None,
-                        regressors=None) for _ in range(4)]
+
 
 modelspec_detrend = pe.Node(interface=model.SpecifyModel(), name= "modelspecd")
-modelspec_detrend.inputs.concatenate_runs        = True
-modelspec_detrend.inputs.input_units             = 'secs'
-modelspec_detrend.inputs.output_units            = 'secs'
-modelspec_detrend.inputs.time_repetition         = 3.
-modelspec_detrend.inputs.high_pass_filter_cutoff = 120
-modelspec_detrend.inputs.subject_info            = subjectinfo_empty
-
-"""Generate a first level SPM.mat file for analysis
-:class:`nipype.interfaces.spm.Level1Design`.
-"""
 
 level1design_detrend = pe.Node(interface=spm.Level1Design(), name= "level1designd")
-level1design_detrend.inputs.timing_units       = modelspec_detrend.inputs.output_units
-level1design_detrend.inputs.interscan_interval = modelspec_detrend.inputs.time_repetition
 level1design_detrend.inputs.bases              = {'hrf':{'derivs': [0,0]}}
 level1design_detrend.inputs.model_serial_correlations = "AR(1)"
-
-
-"""Use :class:`nipype.interfaces.spm.EstimateModel` to determine the
-parameters of the model.
-"""
 
 level1estimate_detrend = pe.Node(interface=spm.EstimateModel(), name="level1estimated")
 level1estimate_detrend.inputs.estimation_method = {'Classical' : 1}
@@ -160,109 +70,31 @@ level1estimate_detrend.inputs.save_residual_images = True
 
 join_residuals = pe.Node(interface=fsl.Merge(dimension="t"), name="join_residuals")
 
-
 # from float64 to float32
-img2float = pe.Node(interface=fsl.ImageMaths(out_data_type='float',
-                                             op_string = '',
-                                             suffix='_dtype'),
-                       name='img2float')
-
+img2float = pe.Node(interface=fsl.ImageMaths(), name='img2float')
+img2float.inputs.out_data_type = 'float'
+img2float.inputs.op_string = ''
+img2float.inputs.suffix = '_dtype'
 
 detrend_pipeline.connect([(modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
-                  (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
-                  (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
-                  (join_residuals, img2float, [('merged_file', 'in_file')])])
-
-names = ['Task-Odd','Task-Even']
-onsets = [[],[]]
-for r in range(4):
-    onsets[0] += range(5 + r*85,80+r*85,20)
-    onsets[1] += range(15 + r*85,80+r*85,20)
-subjectinfo = [Bunch(conditions=names,
-                    onsets=onsets,
-                    durations=[[5] for s in names],
-                    amplitudes=None,
-                    tmod=None,
-                    pmod=None,
-                    regressor_names=None,
-                    regressors=None)]
-
-bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
-bootstrap.inputs.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
-id = range(150)
-bootstrap.iterables = ('id',id)
+                          (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
+                          (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
+                          (join_residuals, img2float, [('merged_file', 'in_file')])])
 
 analysis_pipeline = pe.Workflow(name="analysis")
 
-"""
-Set up analysis components
---------------------------
-
-Here we create a function that returns subject-specific information
-about the experimental paradigm. This is used by the
-:class:`nipype.interfaces.spm.SpecifyModel` to create the information
-necessary to generate an SPM design matrix. In this tutorial, the same
-paradigm was used for every participant.
-"""
-
-
-
-
-
-"""Setup the contrast structure that needs to be evaluated. This is a
-list of lists. The inner list specifies the contrasts and has the
-following format - [Name,Stat,[list of condition names],[weights on
-those conditions]. The condition names must match the `names` listed
-in the `subjectinfo` function described above.
-"""
-
-cont1 = ('Task>Baseline','T', ['Task-Odd','Task-Even'],[0.5,0.5])
-cont2 = ('Task-Odd>Task-Even','T', ['Task-Odd','Task-Even'],[1,-1])
-contrasts = [cont1,cont2]
-
-"""Generate SPM-specific design information using
-:class:`nipype.interfaces.spm.SpecifyModel`.
-"""
-
-
-
-"""Generate SPM-specific design information using
-:class:`nipype.interfaces.spm.SpecifyModel`.
-"""
-
 modelspec = pe.Node(interface=model.SpecifyModel(), name= "modelspec")
-modelspec.inputs.input_units             = 'scans'
-modelspec.inputs.output_units            = 'scans'
-modelspec.inputs.time_repetition         = 3.
-modelspec.inputs.subject_info    = subjectinfo
-
-"""Generate a first level SPM.mat file for analysis
-:class:`nipype.interfaces.spm.Level1Design`.
-"""
 
 level1design = pe.Node(interface=spm.Level1Design(), name= "level1design")
-level1design.inputs.timing_units       = modelspec.inputs.output_units
-level1design.inputs.interscan_interval = modelspec.inputs.time_repetition
 level1design.inputs.bases              = {'hrf':{'derivs': [0,0]}}
 level1design_detrend.inputs.model_serial_correlations = "none"
-
-
-"""Use :class:`nipype.interfaces.spm.EstimateModel` to determine the
-parameters of the model.
-"""
 
 level1estimate = pe.Node(interface=spm.EstimateModel(), name="level1estimate")
 level1estimate.inputs.estimation_method = {'Classical' : 1}
 
-
-"""Use :class:`nipype.interfaces.spm.EstimateContrast` to estimate the
-first level contrasts specified in a few steps above.
-"""
-
 contrastestimate = pe.Node(interface = spm.EstimateContrast(), name="contrastestimate")
-contrastestimate.inputs.contrasts = contrasts
 
-threshold = pe.Node(interface=spm.Threshold(contrast_index=1, use_fwe_correction = False), name="threshold")
+threshold = pe.Node(interface=spm.Threshold(), name="threshold")
 
 analysis_pipeline.connect([(modelspec,level1design,[('session_info','session_info')]),
                   
@@ -277,30 +109,6 @@ analysis_pipeline.connect([(modelspec,level1design,[('session_info','session_inf
                                                 ('beta_images','beta_images'),
                                                 ('mean_residual_image','mean_residual_image')])])
 
-
-
-"""
-Setup the pipeline
-------------------
-
-The nodes created above do not describe the flow of data. They merely
-describe the parameters used for each function. In this section we
-setup the connections between the nodes such that appropriate outputs
-from nodes are piped into appropriate inputs of other nodes.
-
-Use the :class:`nipype.pipeline.engine.Pipeline` to create a
-graph-based execution pipeline for first level analysis. The config
-options tells the pipeline engine to use `workdir` as the disk
-location to use when running the processes and keeping their
-outputs. The `use_parameterized_dirs` tells the engine to create
-sub-directories under `workdir` corresponding to the iterables in the
-pipeline. Thus for this pipeline there will be subject specific
-sub-directories.
-
-The ``nipype.pipeline.engine.Pipeline.connect`` function creates the
-links between the processes, i.e., how data should flow in and out of
-the processing nodes.
-"""
 
 # Specify the location of the data.
 data_dir = os.path.abspath('data')
@@ -347,18 +155,22 @@ l1pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
 #standard_analysis.inputs.modelspec.subject_info = subjectinfo_standard
 #standard_analysis.inputs.modelspec.concatenate_runs        = True
 
-bootstrap_pipeline = pe.Workflow(name="bootstrap")
+bootstrap_pipeline = pe.Workflow(name="bootstrap_wf")
+
+bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(id=0), name="bootstrap")
+#id = range(150)
+#bootstrap.iterables = ('id',id)
 
 bootstrap_pipeline.connect([
-                            
-# uncomment to break!
+
 #                  (detrend_pipeline, split_analysis, [('img2float.out_file', 'modelspec.functional_runs'),
 #                                                                ('level1estimate_detrend.mask_image', 'level1design.mask_image')]),
                   
                   (detrend_pipeline, bootstrap, [('img2float.out_file', 'original_volume')]),
                   
                   (bootstrap, analysis_pipeline, [('bootstraped_volume', 'modelspec.functional_runs')]),
-                  (detrend_pipeline, analysis_pipeline, [('level1estimated.mask_image', 'level1design.mask_image')])])
+                  (detrend_pipeline, analysis_pipeline, [('level1estimated.mask_image', 'level1design.mask_image')])
+                  ])
 
 l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (datasource, preproc_pipeline, [('func', 'realign.in_files')]),
@@ -380,6 +192,58 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   ])
 
 
+TR = 3.
+
+l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.concatenate_runs        = True
+l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.concatenate_runs        = True
+l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.input_units             = 'secs'
+l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.output_units            = 'secs'
+l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.time_repetition         = TR
+l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.high_pass_filter_cutoff = 120
+l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.subject_info            = [Bunch(conditions=[],
+                                                                                onsets=[],
+                                                                                durations=[],
+                                                                                amplitudes=None,
+                                                                                tmod=None,
+                                                                                pmod=None,
+                                                                                regressor_names=None,
+                                                                                regressors=None) for _ in range(4)]
+l1pipeline.inputs.bootstrap_wf.detrend.level1designd.interscan_interval      = TR
+l1pipeline.inputs.bootstrap_wf.detrend.level1designd.timing_units = l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.output_units
+
+
+names = ['Task-Odd','Task-Even']
+onsets = [[],[]]
+for r in range(4):
+    onsets[0] += range(5 + r*85,80+r*85,20)
+    onsets[1] += range(15 + r*85,80+r*85,20)
+subjectinfo = [Bunch(conditions=names,
+                    onsets=onsets,
+                    durations=[[5] for s in names],
+                    amplitudes=None,
+                    tmod=None,
+                    pmod=None,
+                    regressor_names=None,
+                    regressors=None)]
+
+l1pipeline.inputs.bootstrap_wf.bootstrap.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
+
+
+l1pipeline.inputs.bootstrap_wf.analysis.modelspec.time_repetition         = TR
+l1pipeline.inputs.bootstrap_wf.analysis.modelspec.subject_info            = subjectinfo
+l1pipeline.inputs.bootstrap_wf.analysis.modelspec.input_units             = 'scans'
+l1pipeline.inputs.bootstrap_wf.analysis.modelspec.output_units            = 'scans'
+
+l1pipeline.inputs.bootstrap_wf.analysis.level1design.interscan_interval      = TR
+l1pipeline.inputs.bootstrap_wf.analysis.level1design.timing_units = l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.output_units
+
+cont1 = ('Task>Baseline','T', ['Task-Odd','Task-Even'],[0.5,0.5])
+cont2 = ('Task-Odd>Task-Even','T', ['Task-Odd','Task-Even'],[1,-1])
+contrasts = [cont1,cont2]
+l1pipeline.inputs.bootstrap_wf.analysis.contrastestimate.contrasts = contrasts
+
+l1pipeline.inputs.bootstrap_wf.analysis.threshold.contrast_index = 1
+l1pipeline.inputs.bootstrap_wf.analysis.threshold.use_fwe_correction = True
 
 
 l2pipeline = pe.Workflow(name="level2")
