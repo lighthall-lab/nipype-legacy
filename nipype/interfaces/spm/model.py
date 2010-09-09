@@ -161,7 +161,16 @@ class EstimateModelOutputSpec(TraitedSpec):
     mean_residual_image = File(exists=True, desc='Mean-squared image of the residuals')
     RPVimage = File(exists=True, desc='Resels per voxel image')
     spm_mat_file = File(exist=True, desc='Updated SPM mat file')
-    residual_images = traits.List(File(), desc='List of residual images - requires patching SPM code.')
+    residual_images = traits.List(File(), desc="""List of residual images - requires patching SPM: spm_spm.m:
+< j = spm_select('List',SPM.swd,'^ResI_.{4}\..{3}$');
+< for  k = 1:size(j,1)
+<     spm_unlink(deblank(j(k,:)));
+< end
+---
+> %j = spm_select('List',SPM.swd,'^ResI_.{4}\..{3}$');
+> %for  k = 1:size(j,1)
+> %    spm_unlink(deblank(j(k,:)));
+> %end.""")
 
 class EstimateModel(SPMCommand):
     """Use spm_spm to estimate the parameters of a model
