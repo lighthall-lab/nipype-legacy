@@ -76,10 +76,10 @@ img2float.inputs.out_data_type = 'float'
 img2float.inputs.op_string = ''
 img2float.inputs.suffix = '_dtype'
 
-detrend_pipeline.connect([(modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
-                          (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
-                          (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
-                          (join_residuals, img2float, [('merged_file', 'in_file')])])
+#detrend_pipeline.connect([(modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
+#                          (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
+#                          (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
+#                          (join_residuals, img2float, [('merged_file', 'in_file')])])
 
 analysis_pipeline = pe.Workflow(name="analysis")
 
@@ -165,20 +165,23 @@ bootstrap_pipeline.connect([
 
 #                  (detrend_pipeline, split_analysis, [('img2float.out_file', 'modelspec.functional_runs'),
 #                                                                ('level1estimate_detrend.mask_image', 'level1design.mask_image')]),
-                  
-                  (detrend_pipeline, bootstrap, [('img2float.out_file', 'original_volume')]),
+                  (modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
+                  (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
+                  (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
+                  (join_residuals, img2float, [('merged_file', 'in_file')]),
+                  (img2float, bootstrap, [('out_file', 'original_volume')]),
                   
                   (bootstrap, analysis_pipeline, [('bootstraped_volume', 'modelspec.functional_runs')]),
-                  (detrend_pipeline, analysis_pipeline, [('level1estimated.mask_image', 'level1design.mask_image')])
+                  (level1estimate_detrend, analysis_pipeline, [('mask_image', 'level1design.mask_image')])
                   ])
 
 l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
                   (datasource, preproc_pipeline, [('func', 'realign.in_files')]),
                   (datasource, preproc_pipeline, [('struct', 'coregister.target')]),
                   
-                  (preproc_pipeline, bootstrap_pipeline, [('realign.realignment_parameters','detrend.modelspecd.realignment_parameters'),
-                                                          ('art.outlier_files','detrend.modelspecd.outlier_files'),
-                                                          ('smooth.smoothed_files','detrend.modelspecd.functional_runs')]),
+                  (preproc_pipeline, bootstrap_pipeline, [('realign.realignment_parameters','modelspecd.realignment_parameters'),
+                                                          ('art.outlier_files','modelspecd.outlier_files'),
+                                                          ('smooth.smoothed_files','modelspecd.functional_runs')]),
                                                           
 #                  (preproc_pipeline, standard_analysis, [('realign.realignment_parameters','modelspec.realignment_parameters'),
 #                                                          ('art.outlier_files','modelspec.outlier_files'),
@@ -194,13 +197,13 @@ l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
 
 TR = 3.
 
-l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.concatenate_runs        = True
-l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.concatenate_runs        = True
-l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.input_units             = 'secs'
-l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.output_units            = 'secs'
-l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.time_repetition         = TR
-l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.high_pass_filter_cutoff = 120
-l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.subject_info            = [Bunch(conditions=[],
+l1pipeline.inputs.bootstrap_wf.modelspecd.concatenate_runs        = True
+l1pipeline.inputs.bootstrap_wf.modelspecd.concatenate_runs        = True
+l1pipeline.inputs.bootstrap_wf.modelspecd.input_units             = 'secs'
+l1pipeline.inputs.bootstrap_wf.modelspecd.output_units            = 'secs'
+l1pipeline.inputs.bootstrap_wf.modelspecd.time_repetition         = TR
+l1pipeline.inputs.bootstrap_wf.modelspecd.high_pass_filter_cutoff = 120
+l1pipeline.inputs.bootstrap_wf.modelspecd.subject_info            = [Bunch(conditions=[],
                                                                                 onsets=[],
                                                                                 durations=[],
                                                                                 amplitudes=None,
@@ -208,8 +211,8 @@ l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.subject_info            = [Bun
                                                                                 pmod=None,
                                                                                 regressor_names=None,
                                                                                 regressors=None) for _ in range(4)]
-l1pipeline.inputs.bootstrap_wf.detrend.level1designd.interscan_interval      = TR
-l1pipeline.inputs.bootstrap_wf.detrend.level1designd.timing_units = l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.output_units
+l1pipeline.inputs.bootstrap_wf.level1designd.interscan_interval      = TR
+l1pipeline.inputs.bootstrap_wf.level1designd.timing_units = l1pipeline.inputs.bootstrap_wf.modelspecd.output_units
 
 
 names = ['Task-Odd','Task-Even']
@@ -235,7 +238,7 @@ l1pipeline.inputs.bootstrap_wf.analysis.modelspec.input_units             = 'sca
 l1pipeline.inputs.bootstrap_wf.analysis.modelspec.output_units            = 'scans'
 
 l1pipeline.inputs.bootstrap_wf.analysis.level1design.interscan_interval      = TR
-l1pipeline.inputs.bootstrap_wf.analysis.level1design.timing_units = l1pipeline.inputs.bootstrap_wf.detrend.modelspecd.output_units
+l1pipeline.inputs.bootstrap_wf.analysis.level1design.timing_units = l1pipeline.inputs.bootstrap_wf.analysis.modelspec.output_units
 
 cont1 = ('Task>Baseline','T', ['Task-Odd','Task-Even'],[0.5,0.5])
 cont2 = ('Task-Odd>Task-Even','T', ['Task-Odd','Task-Even'],[1,-1])
