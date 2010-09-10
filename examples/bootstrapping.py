@@ -217,8 +217,7 @@ standard_analysis = analysis_pipeline.clone("standard_analysis")
 standard_analysis.inputs.modelspec.high_pass_filter_cutoff = 120
 standard_analysis.inputs.modelspec.input_units = 'secs'
 standard_analysis.inputs.modelspec.output_units= 'secs'
-standard_analysis.inputs.level1design.model_serial_correlations = "AR(1)"
-standard_analysis.inputs.level1design.timing_units = 'secs'
+
 
 subjectinfo_standard = []
 for r in range(4):
@@ -235,6 +234,8 @@ for r in range(4):
     
 standard_analysis.inputs.modelspec.subject_info = subjectinfo_standard
 standard_analysis.inputs.modelspec.concatenate_runs        = True
+standard_analysis.inputs.level1design.model_serial_correlations = "AR(1)"
+standard_analysis.inputs.level1design.timing_units = 'secs'
 
 l1pipeline.connect([(preproc_pipeline, standard_analysis, [('realign.realignment_parameters','modelspec.realignment_parameters'),
                                                           ('art.outlier_files','modelspec.outlier_files'),
