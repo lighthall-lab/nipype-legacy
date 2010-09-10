@@ -206,8 +206,7 @@ l1pipeline.inputs.bootstrap_wf.analysis.level1design.interscan_interval      = T
 l1pipeline.inputs.bootstrap_wf.analysis.level1design.timing_units = l1pipeline.inputs.bootstrap_wf.analysis.modelspec.output_units
 
 cont1 = ('Task>Baseline','T', ['Task-Odd','Task-Even'],[0.5,0.5])
-cont2 = ('Task-Odd>Task-Even','T', ['Task-Odd','Task-Even'],[1,-1])
-contrasts = [cont1,cont2]
+contrasts = [cont1]
 l1pipeline.inputs.bootstrap_wf.analysis.contrastestimate.contrasts = contrasts
 
 l1pipeline.inputs.bootstrap_wf.analysis.threshold.contrast_index = 1
@@ -244,6 +243,16 @@ l1pipeline.connect([(preproc_pipeline, standard_analysis, [('realign.realignment
 split_analysis = analysis_pipeline.clone("split_analysis")
 l1pipeline.connect([(img2float, split_analysis, [('out_file', 'modelspec.functional_runs')]),
                     (level1estimate_detrend, split_analysis, [('mask_image', 'level1design.mask_image')])])
+
+divide_maps = pe.Node(interface=fsl.ImageMaths(op_string = "-div"), name = "divide")
+substract_maps = pe.Node(interface=fsl.ImageMaths(op_string = "-sub"), name = "substract")
+
+l1pipeline.connect([(split_analysis, divide_maps, [('contrastestimate.spmT_images', 'in_file')]),
+                    (standard_analysis, divide_maps, [('contrastestimate.spmT_images', 'in_file2')]),
+                    (split_analysis, substract_maps, [('contrastestimate.spmT_images', 'in_file')]),
+                    (standard_analysis, substract_maps, [('contrastestimate.spmT_images', 'in_file2')]),
+                    ])
+
 
 l2pipeline = pe.Workflow(name="level2")
 l2pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
