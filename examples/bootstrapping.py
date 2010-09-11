@@ -47,14 +47,6 @@ coregister.inputs.jobtype = 'estimate'
 
 smooth = pe.Node(interface=spm.Smooth(fwhm = 4), name = "smooth")
 
-preproc_pipeline.connect([(realign, coregister, [('mean_image', 'source'),
-                                                 ('realigned_files', 'apply_to_files')]),
-                          (coregister, smooth, [('coregistered_files', 'in_files')]),
-                          (realign, art, [('realignment_parameters', 'realignment_parameters')]),
-                          (coregister, art, [('coregistered_files', 'realigned_files')])])
-
-
-detrend_pipeline = pe.Workflow(name="detrend")
 
 
 
@@ -133,42 +125,20 @@ datasource.inputs.template_args = info
 l1pipeline = pe.Workflow(name="level1")
 l1pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
 
-bootstrap_pipeline = pe.Workflow(name="bootstrap_wf")
-
 bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
-id = range(150)
+id = range(5)
 bootstrap.iterables = ('id',id)
-
-bootstrap_pipeline.connect([
-                  (modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
-                  (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
-                  (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
-                  (join_residuals, img2float, [('merged_file', 'in_file')]),
-                  (img2float, bootstrap, [('out_file', 'original_volume')]),
-                  
-                  (bootstrap, analysis_pipeline, [('bootstraped_volume', 'modelspec.functional_runs')]),
-                  (level1estimate_detrend, analysis_pipeline, [('mask_image', 'level1design.mask_image')])
-                  ])
-
-l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
-                  (datasource, preproc_pipeline, [('func', 'realign.in_files')]),
-                  (datasource, preproc_pipeline, [('struct', 'coregister.target')]),
-                  
-                  (preproc_pipeline, bootstrap_pipeline, [('realign.realignment_parameters','modelspecd.realignment_parameters'),
-                                                          ('art.outlier_files','modelspecd.outlier_files'),
-                                                          ('smooth.smoothed_files','modelspecd.functional_runs')])         
-                  ])
 
 
 TR = 3.
 
-l1pipeline.inputs.bootstrap_wf.modelspecd.concatenate_runs        = True
-l1pipeline.inputs.bootstrap_wf.modelspecd.concatenate_runs        = True
-l1pipeline.inputs.bootstrap_wf.modelspecd.input_units             = 'secs'
-l1pipeline.inputs.bootstrap_wf.modelspecd.output_units            = 'secs'
-l1pipeline.inputs.bootstrap_wf.modelspecd.time_repetition         = TR
-l1pipeline.inputs.bootstrap_wf.modelspecd.high_pass_filter_cutoff = 120
-l1pipeline.inputs.bootstrap_wf.modelspecd.subject_info            = [Bunch(conditions=[],
+modelspec_detrend.inputs.concatenate_runs        = True
+modelspec_detrend.inputs.concatenate_runs        = True
+modelspec_detrend.inputs.input_units             = 'secs'
+modelspec_detrend.inputs.output_units            = 'secs'
+modelspec_detrend.inputs.time_repetition         = TR
+modelspec_detrend.inputs.high_pass_filter_cutoff = 120
+modelspec_detrend.inputs.subject_info            = [Bunch(conditions=[],
                                                                                 onsets=[],
                                                                                 durations=[],
                                                                                 amplitudes=None,
@@ -176,8 +146,8 @@ l1pipeline.inputs.bootstrap_wf.modelspecd.subject_info            = [Bunch(condi
                                                                                 pmod=None,
                                                                                 regressor_names=None,
                                                                                 regressors=None) for _ in range(4)]
-l1pipeline.inputs.bootstrap_wf.level1designd.interscan_interval      = TR
-l1pipeline.inputs.bootstrap_wf.level1designd.timing_units = l1pipeline.inputs.bootstrap_wf.modelspecd.output_units
+level1design_detrend.inputs.interscan_interval      = TR
+level1design_detrend.inputs.timing_units = modelspec_detrend.inputs.output_units
 
 
 names = ['Task-Odd','Task-Even']
@@ -194,23 +164,23 @@ subjectinfo = [Bunch(conditions=names,
                     regressor_names=None,
                     regressors=None)]
 
-l1pipeline.inputs.bootstrap_wf.bootstrap.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
+bootstrap.inputs.blocks_info = Bunch(onsets = subjectinfo[0].onsets, duration = [10, 10])
 
 
-l1pipeline.inputs.bootstrap_wf.analysis.modelspec.time_repetition         = TR
-l1pipeline.inputs.bootstrap_wf.analysis.modelspec.subject_info            = subjectinfo
-l1pipeline.inputs.bootstrap_wf.analysis.modelspec.input_units             = 'scans'
-l1pipeline.inputs.bootstrap_wf.analysis.modelspec.output_units            = 'scans'
+analysis_pipeline.inputs.modelspec.time_repetition         = TR
+analysis_pipeline.inputs.modelspec.subject_info            = subjectinfo
+analysis_pipeline.inputs.modelspec.input_units             = 'scans'
+analysis_pipeline.inputs.modelspec.output_units            = 'scans'
 
-l1pipeline.inputs.bootstrap_wf.analysis.level1design.interscan_interval      = TR
-l1pipeline.inputs.bootstrap_wf.analysis.level1design.timing_units = l1pipeline.inputs.bootstrap_wf.analysis.modelspec.output_units
+analysis_pipeline.inputs.level1design.interscan_interval      = TR
+analysis_pipeline.inputs.level1design.timing_units = analysis_pipeline.inputs.modelspec.output_units
 
 cont1 = ('Task>Baseline','T', ['Task-Odd','Task-Even'],[0.5,0.5])
 contrasts = [cont1]
-l1pipeline.inputs.bootstrap_wf.analysis.contrastestimate.contrasts = contrasts
+analysis_pipeline.inputs.contrastestimate.contrasts = contrasts
 
-l1pipeline.inputs.bootstrap_wf.analysis.threshold.contrast_index = 1
-l1pipeline.inputs.bootstrap_wf.analysis.threshold.use_fwe_correction = True
+analysis_pipeline.inputs.threshold.contrast_index = 1
+analysis_pipeline.inputs.threshold.use_fwe_correction = True
 
 standard_analysis = analysis_pipeline.clone("standard_analysis")
 standard_analysis.inputs.modelspec.high_pass_filter_cutoff = 120
@@ -236,40 +206,65 @@ standard_analysis.inputs.modelspec.concatenate_runs        = True
 standard_analysis.inputs.level1design.model_serial_correlations = "AR(1)"
 standard_analysis.inputs.level1design.timing_units = 'secs'
 
-l1pipeline.connect([(preproc_pipeline, standard_analysis, [('realign.realignment_parameters','modelspec.realignment_parameters'),
-                                                          ('art.outlier_files','modelspec.outlier_files'),
-                                                          ('smooth.smoothed_files','modelspec.functional_runs')])])
+l1pipeline.connect([(realign, standard_analysis, [('realignment_parameters','modelspec.realignment_parameters')]),
+                    (art, standard_analysis, [('outlier_files','modelspec.outlier_files')]),
+                    (smooth, standard_analysis, [('smoothed_files','modelspec.functional_runs')])])
 
 split_analysis = analysis_pipeline.clone("split_analysis")
 l1pipeline.connect([(img2float, split_analysis, [('out_file', 'modelspec.functional_runs')]),
                     (level1estimate_detrend, split_analysis, [('mask_image', 'level1design.mask_image')])])
+#
+#divide_maps = pe.Node(interface=fsl.ImageMaths(op_string = "-div"), name = "divide")
+#substract_maps = pe.Node(interface=fsl.ImageMaths(op_string = "-sub"), name = "substract")
+#
+#l1pipeline.connect([(split_analysis, divide_maps, [('contrastestimate.spmT_images', 'in_file')]),
+#                    (standard_analysis, divide_maps, [('contrastestimate.spmT_images', 'in_file2')]),
+#                    (split_analysis, substract_maps, [('contrastestimate.spmT_images', 'in_file')]),
+#                    (standard_analysis, substract_maps, [('contrastestimate.spmT_images', 'in_file2')]),
+#                    ])
 
-divide_maps = pe.Node(interface=fsl.ImageMaths(op_string = "-div"), name = "divide")
-substract_maps = pe.Node(interface=fsl.ImageMaths(op_string = "-sub"), name = "substract")
+l1pipeline.connect([(infosource, datasource, [('subject_id', 'subject_id')]),
+                  (datasource, realign, [('func', 'in_files')]),
+                  (datasource, coregister, [('struct', 'target')]),
+                  
+                  (realign, coregister, [('mean_image', 'source'),
+                                                 ('realigned_files', 'apply_to_files')]),
+                  (coregister, smooth, [('coregistered_files', 'in_files')]),
+                  (realign, art, [('realignment_parameters', 'realignment_parameters')]),
+                  (coregister, art, [('coregistered_files', 'realigned_files')]),
+                  
+                  (realign, modelspec_detrend, [('realignment_parameters','realignment_parameters')]),
+                  (art, modelspec_detrend, [('outlier_files','outlier_files')]),
+                  (smooth, modelspec_detrend, [('smoothed_files','functional_runs')]),
+                           
+                  (modelspec_detrend,level1design_detrend,[('session_info','session_info')]),
+                  (level1design_detrend,level1estimate_detrend,[('spm_mat_file','spm_mat_file')]),
+                  (level1estimate_detrend, join_residuals, [('residual_images', 'in_files')]),
+                  (join_residuals, img2float, [('merged_file', 'in_file')]),
+                  (img2float, bootstrap, [('out_file', 'original_volume')]),
+                  
+                  (bootstrap, analysis_pipeline, [('bootstraped_volume', 'modelspec.functional_runs')]),
+                  (level1estimate_detrend, analysis_pipeline, [('mask_image', 'level1design.mask_image')])
+                  ])
 
-l1pipeline.connect([(split_analysis, divide_maps, [('contrastestimate.spmT_images', 'in_file')]),
-                    (standard_analysis, divide_maps, [('contrastestimate.spmT_images', 'in_file2')]),
-                    (split_analysis, substract_maps, [('contrastestimate.spmT_images', 'in_file')]),
-                    (standard_analysis, substract_maps, [('contrastestimate.spmT_images', 'in_file2')]),
-                    ])
 
-
-l2pipeline = pe.Workflow(name="level2")
-l2pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
-
-l2source = pe.Node(nio.DataGrabber(infields=["subject_id", "id"]),name="l2source")
-l2source.inputs.template=os.path.abspath('bootstrapping/workingdir/level1/_subject_id_%s/_id_%d/threshold/thresholded_map.img')
-l2source.inputs.id = id
-l2source.iterables = [('subject_id',subject_list)]
-frequency_map = pe.Node(misc.FrequencyMap(), name="frequency_map")
-
-simple_threshold = pe.Node(misc.SimpleThreshold(), name="simple_threshold")
-simple_threshold.iterables = [('threshold',[0.9, 0.95, 0.99])]
-
-l2pipeline.connect([
-                    (l2source,frequency_map, [('outfiles', 'binary_images')]),
-                    (frequency_map, simple_threshold, [('frequency_map','volumes')])
-                    ])
+#
+#l2pipeline = pe.Workflow(name="level2")
+#l2pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
+#
+#l2source = pe.Node(nio.DataGrabber(infields=["subject_id", "id"]),name="l2source")
+#l2source.inputs.template=os.path.abspath('bootstrapping/workingdir/level1/bootstrap_wf/analysis/_subject_id_%s/_id_%d/threshold/thresholded_map.img')
+#l2source.inputs.id = id
+#l2source.iterables = [('subject_id',subject_list)]
+#frequency_map = pe.Node(misc.FrequencyMap(), name="frequency_map")
+#
+#simple_threshold = pe.Node(misc.SimpleThreshold(), name="simple_threshold")
+#simple_threshold.iterables = [('threshold',[0.9, 0.95, 0.99])]
+#
+#l2pipeline.connect([
+#                    (l2source,frequency_map, [('outfiles', 'binary_images')]),
+#                    (frequency_map, simple_threshold, [('frequency_map','volumes')])
+#                    ])
 
 """
 Execute the pipeline
