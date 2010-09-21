@@ -95,11 +95,8 @@ analysis_pipeline.connect([(modelspec,level1design,[('session_info','session_inf
                                                   ('beta_images','beta_images'),
                                                   ('mean_residual_image','mean_residual_image')]),                                               
                   (contrastestimate, threshold,[('spm_mat_file','spm_mat_file'),
-                                                  ('spmT_images', 'spmT_images')]),
-                  (level1estimate, threshold,[('RPVimage', 'RPVimage'),
-                                                ('mask_image','mask_image'),
-                                                ('beta_images','beta_images'),
-                                                ('mean_residual_image','mean_residual_image')])])
+                                                  ('spmT_images', 'stat_image')]),
+                                                  ])
 
 
 # Specify the location of the data.
@@ -126,7 +123,7 @@ l1pipeline = pe.Workflow(name="level1")
 l1pipeline.base_dir = os.path.abspath('bootstrapping/workingdir')
 
 bootstrap = pe.Node(interface=misc.BootstrapTimeSeries(), name="bootstrap")
-id = range(5)
+id = range(100)
 bootstrap.iterables = ('id',id)
 
 
