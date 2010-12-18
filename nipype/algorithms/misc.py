@@ -314,9 +314,48 @@ class Dissimilarity(BaseInterface):
             self._dissimilarity = self._bool_vec_dissimilarity(origdata1, origdata2, method = self.inputs.method)
         
         runtime.returncode=0
+
         return runtime
     
     def _list_outputs(self):
         outputs = self._outputs().get()
         outputs['dissimilarity'] = self._dissimilarity
+
+class BootstrapTimeSeriesInputSpec(TraitedSpec):
+    original_volume = File(exists=True, desc="source volume for bootstrapping", mandatory=True)
+    block_size = traits.Int(mandatory=True)
+    onsets = traits.List(traits.Int(), mandatory=True)
+    id = traits.Int()
+
+class BootstrapTimeSeriesOutputSpec(TraitedSpec):
+    bootstraped_volume = File(exists=True)
+
+class BootstrapTimeSeries(BaseInterface):
+    input_spec = BootstrapTimeSeriesInputSpec
+    output_spec = BootstrapTimeSeriesOutputSpec
+    
+    def _run_interface(self, runtime):
+        img = nb.load(self.inputs.original_volume)
+        original_volume = img.get_data()
+        block_size = self.inputs.block_size
+        onsets = self.inputs.onsets
+        
+        new_volume = original_volume.copy()
+        
+        for onset in onsets:
+            for rel_i in range(block_size):
+                new_i = onsets[np.random.random_integers(0, len(onsets)-1)] + rel_i
+                new_volume[:,:,:,onset+rel_i] = original_volume[:,:,:,new_i]
+            
+        new_img = nb.Nifti1Image(new_volume, img.get_affine(), img.get_header())
+        _, base, ext = split_filename(self.inputs.original_volume)
+        nb.save(new_img, base + "_thresholded.nii")
+            
+        runtime.returncode = 0
+        return runtime
+    
+    def _list_outputs(self):
+        outputs = self._outputs().get()
+        _, base, ext = split_filename(self.inputs.original_volume)
+        outputs['bootstraped_volume'] = os.path.abspath(base + "_thresholded.nii")
         return outputs
