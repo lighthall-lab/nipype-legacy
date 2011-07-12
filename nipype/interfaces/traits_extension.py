@@ -19,19 +19,13 @@ all of these bugs and they've been fixed in enthought svn repository
 import os
 
 # perform all external trait imports here
-try:
-    import traits
-    if traits.__version__ < '3.7.0':
-        raise ImportError
-    import traits.api as traits
-    from traits.trait_handlers import TraitDictObject, TraitListObject
-    from traits.trait_errors import TraitError
-    from traits.trait_base import _Undefined
-except ImportError:
-    import nipype.external.traits.api as traits
-    from nipype.external.traits.trait_handlers import TraitDictObject, TraitListObject
-    from nipype.external.traits.trait_errors import TraitError
-    from nipype.external.traits.trait_base import _Undefined
+import traits
+if traits.__version__ < '3.7.0':
+    raise ImportError('Traits version 3.7.0 or higher must be installed')
+import traits.api as traits
+from traits.trait_handlers import TraitDictObject, TraitListObject
+from traits.trait_errors import TraitError
+from traits.trait_base import _Undefined
 
 class BaseFile ( traits.BaseStr ):
     """ Defines a trait whose value must be the name of a file.
@@ -236,19 +230,20 @@ Undefined = _Undefined()
 def isdefined(object):
     return not isinstance(object, _Undefined)
 
-def is_trait_a_file(trait):
+def has_metadata(trait, metadata, value, recursive=True):
     '''
-    Checks if a given trait could be an exisitng File.
+    Checks if a given trait has a metadata set to particular value
     '''
     count = 0
-    if hasattr(trait, 'exists') and trait.exists:
-        return True
-    if hasattr(trait, 'inner_traits'):
-        for inner_trait in trait.inner_traits():
-            count += is_trait_a_file(inner_trait.trait_type)
-    if hasattr(trait, 'handlers') and trait.handlers != None:
-        for inner_trait in trait.handlers:
-            count += is_trait_a_file(inner_trait)
+    if hasattr(trait, metadata) and getattr(trait, metadata) == value:
+        count += 1
+    if recursive:
+        if hasattr(trait, 'inner_traits'):
+            for inner_trait in trait.inner_traits():
+                count += has_metadata(inner_trait.trait_type, metadata, recursive)
+        if hasattr(trait, 'handlers') and trait.handlers != None:
+            for handler in trait.handlers:
+                count += has_metadata(handler, metadata, recursive)
             
     return count > 0
 
