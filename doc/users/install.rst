@@ -14,7 +14,7 @@ Dependencies
 Must Have
 ~~~~~~~~~
 
-Python_ 2.5 -2.7
+Python_ 2.6 -2.7
 
 Matplotlib_ 1.0
   Plotting library
@@ -116,7 +116,7 @@ Debian and Ubuntu
 Add the `NeuroDebian <http://neuro.debian.org>`_ repository and install 
 the ``python-nipype`` package using ``apt-get`` or your favourite package manager.
 
-Max OS X
+Mac OS X
 ~~~~~~~~
 
 The easiest way to get nipype running on MacOSX is to install EPD_ and then add nibabel 
@@ -125,9 +125,9 @@ and nipype by executing::
 	easy_install nibabel
 	easy_install nipype
 
-If you are running a 64 bit version of EPD, you will need to compile
+If you are running a 64 bit version of EPD 7.0, you will need to compile
 ETS. Instructions for a 64-bit boot mode are available:  https://gist.github.com/845545
-
+This is no longer needed in EPD 7.1.
  
 
 From source

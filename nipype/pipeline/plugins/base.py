@@ -146,8 +146,8 @@ class DistributedPluginBase(PluginBase):
                     else:
                         toappend.insert(0, (taskid, jobid))
                 except Exception, e:
-                    result['result'] = None
-                    result['traceback'] = traceback.format_exc()
+                    result = {'result' : None,
+                              'traceback' : traceback.format_exc()}
                     notrun.append(self._clean_queue(jobid, graph, result=result))
             if toappend:
                 self.pending_tasks.extend(toappend)
