@@ -577,17 +577,13 @@ class MCFLIRT(FSLCommand):
 
         outputs['out_file'] = self._gen_outfilename()
 
-        # XXX Need to change 'item' below to something that exists
-        # out_file? in_file?
-        # These could be handled similarly to default values for inputs
         if isdefined(self.inputs.stats_imgs) and self.inputs.stats_imgs:
-            outputs['variance_img'] = self._gen_fname(self.inputs.in_file,
-                                                      cwd=cwd,
-                                                      suffix='_variance')
-            outputs['std_img'] = self._gen_fname(self.inputs.in_file,
-                                                 cwd=cwd, suffix='_sigma')
-            outputs['mean_img'] = self._gen_fname(self.inputs.in_file,
-                                                  cwd=cwd, suffix='_meanvol')
+            outputs['variance_img'] = self._gen_fname(outputs['out_file'] + \
+                                                      '_variance.ext', cwd=cwd)
+            outputs['std_img'] = self._gen_fname(outputs['out_file'] + \
+                                                      '_sigma.ext', cwd=cwd)
+            outputs['mean_img'] = self._gen_fname(outputs['out_file'] + \
+                                                      '_meanvol.ext', cwd=cwd)
         if isdefined(self.inputs.save_mats) and self.inputs.save_mats:
             _, filename = os.path.split(outputs['out_file'])
             matpathname = os.path.join(cwd, filename + '.mat')
@@ -612,6 +608,8 @@ class MCFLIRT(FSLCommand):
 
     def _gen_outfilename(self):
         out_file = self.inputs.out_file
+        if isdefined(out_file):
+            out_file = os.path.realpath(out_file)
         if not isdefined(out_file) and isdefined(self.inputs.in_file):
             out_file = self._gen_fname(self.inputs.in_file,
                                        suffix = '_mcf')
@@ -837,7 +835,6 @@ class ApplyWarpInputSpec(FSLCommandInputSpec):
                      mandatory=True,
                      desc='reference image')
     field_file = File(exists=True, argstr='--warp=%s',
-                     mandatory=True,
                      desc='file containing warp field')
     abswarp = traits.Bool(argstr='--abs', xor=['relwarp'],
                           desc="treat warp field as absolute: x' = w(x)")
@@ -975,7 +972,7 @@ class SUSANInputSpec(FSLCommandInputSpec):
     use_median = traits.Enum(1,0, argstr='%d', position=5, usedefault=True,
                         desc='whether to use a local median filter in the cases where single-point noise is detected')
     usans = traits.List(traits.Tuple(File(exists=True),traits.Float), maxlen=2,
-                        argstr='', position=6,
+                        argstr='', position=6, default=[], usedefault=True,
              desc='determines whether the smoothing area (USAN) is to be '
                   'found from secondary images (0, 1 or 2). A negative '
                   'value for any brightness threshold will auto-set the '
@@ -1011,7 +1008,7 @@ class SUSAN(FSLCommand):
         if name == 'fwhm':
             return spec.argstr%(float(value)/np.sqrt(8 * np.log(2)))
         if name == 'usans':
-            if not isdefined(value):
+            if not value:
                 return '0'
             arglist = [str(len(value))]
             for filename, thresh in value:
