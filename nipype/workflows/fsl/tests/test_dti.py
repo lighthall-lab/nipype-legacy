@@ -9,11 +9,23 @@ import nipype.interfaces.utility as util
 from nipype.interfaces.fsl import no_fsl, no_fsl_course_data
 
 import nipype.pipeline.engine as pe
-from nipype.testing.utils import setup_test_dir,\
-    remove_test_dir
-import warnings
+import tempfile
+import shutil
 
-global test_dir
+def setup_test_dir():
+    print "in_setup_test_dir"
+    # Setup function is called before each test.  Setup is called only
+    # once for each generator function.
+    global test_dir, cur_dir
+    test_dir = tempfile.mkdtemp()
+    cur_dir = os.getcwd()
+    os.chdir(test_dir)
+
+def remove_test_dir():
+    # Teardown is called after each test to perform cleanup
+    os.chdir(cur_dir)
+    shutil.rmtree(test_dir)
+import warnings
 
 @skipif(no_fsl)
 @skipif(no_fsl_course_data)
@@ -38,11 +50,11 @@ def test_create_eddy_correct_pipeline():
     pipeline = pe.Workflow(name="test_eddycorrect")
     pipeline.base_dir = test_dir
     
-    pipeline.connect([(nipype_eddycorrect, test, [("outputnode.eddy_corrected", "inputnode.volume1")]),
-                      (original_eddycorrect, test, [("eddy_corrected", "inputnode.volume2")]),
+    pipeline.connect([(nipype_eddycorrect, test, [("outputnode.eddy_corrected", "volume1")]),
+                      (original_eddycorrect, test, [("eddy_corrected", "volume2")]),
                       ])
     
-    pipeline.run(inseries=True)
+    pipeline.run(plugin_args={'n_procs': 4})
 
 @skipif(no_fsl)
 @skipif(no_fsl_course_data)
@@ -96,19 +108,19 @@ def test_create_bedpostx_pipeline():
     def pickSecond(l):
         return l[1]
     
-    pipeline.connect([(nipype_bedpostx, test_f1, [(("outputnode.mean_fsamples", pickFirst), "inputnode.volume1")]),
-                      (nipype_bedpostx, test_f2, [(("outputnode.mean_fsamples", pickSecond), "inputnode.volume1")]),
-                      (nipype_bedpostx, test_th1, [(("outputnode.mean_thsamples", pickFirst), "inputnode.volume1")]),
-                      (nipype_bedpostx, test_th2, [(("outputnode.mean_thsamples", pickSecond), "inputnode.volume1")]),
-                      (nipype_bedpostx, test_ph1, [(("outputnode.mean_phsamples", pickFirst), "inputnode.volume1")]),
-                      (nipype_bedpostx, test_ph2, [(("outputnode.mean_phsamples", pickSecond), "inputnode.volume1")]),
+    pipeline.connect([(nipype_bedpostx, test_f1, [(("outputnode.mean_fsamples", pickFirst), "volume1")]),
+                      (nipype_bedpostx, test_f2, [(("outputnode.mean_fsamples", pickSecond), "volume1")]),
+                      (nipype_bedpostx, test_th1, [(("outputnode.mean_thsamples", pickFirst), "volume1")]),
+                      (nipype_bedpostx, test_th2, [(("outputnode.mean_thsamples", pickSecond), "volume1")]),
+                      (nipype_bedpostx, test_ph1, [(("outputnode.mean_phsamples", pickFirst), "volume1")]),
+                      (nipype_bedpostx, test_ph2, [(("outputnode.mean_phsamples", pickSecond), "volume1")]),
                       
-                      (original_bedpostx, test_f1, [(("mean_fsamples", pickFirst), "inputnode.volume2")]),
-                      (original_bedpostx, test_f2, [(("mean_fsamples", pickSecond), "inputnode.volume2")]),
-                      (original_bedpostx, test_th1, [(("mean_thsamples", pickFirst), "inputnode.volume2")]),
-                      (original_bedpostx, test_th2, [(("mean_thsamples", pickSecond), "inputnode.volume2")]),
-                      (original_bedpostx, test_ph1, [(("mean_phsamples", pickFirst), "inputnode.volume2")]),
-                      (original_bedpostx, test_ph2, [(("mean_phsamples", pickSecond), "inputnode.volume2")])
+                      (original_bedpostx, test_f1, [(("mean_fsamples", pickFirst), "volume2")]),
+                      (original_bedpostx, test_f2, [(("mean_fsamples", pickSecond), "volume2")]),
+                      (original_bedpostx, test_th1, [(("mean_thsamples", pickFirst), "volume2")]),
+                      (original_bedpostx, test_th2, [(("mean_thsamples", pickSecond), "volume2")]),
+                      (original_bedpostx, test_ph1, [(("mean_phsamples", pickFirst), "volume2")]),
+                      (original_bedpostx, test_ph2, [(("mean_phsamples", pickSecond), "volume2")])
                       ])
     
-    pipeline.run(inseries=True)
+    pipeline.run(plugin_args={'n_procs': 4})
