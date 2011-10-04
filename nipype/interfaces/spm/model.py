@@ -71,7 +71,7 @@ class Level1DesignInputSpec(SPMCommandInputSpec):
                      desc='Model interactions - yes:1, no:2 (opt)')
     global_intensity_normalization = traits.Enum('none', 'scaling', field='global',
                       desc='Global intensity normalization - scaling or none (opt)')
-    mask_image = File(exists=True, field='mask', copyfile=False,
+    mask_image = File(exists=True, field='mask',
                       desc='Image  for  explicitly  masking the analysis (opt)')
     mask_threshold = traits.Either(traits.Enum('-Inf'), traits.Float(),
                       desc="Thresholding for the mask (opt, '-Inf')", default='-Inf', usedefault=True)
@@ -451,8 +451,9 @@ class Threshold(SPMCommand):
         script += "cluster_extent_p_fdr_thr = %f;\n"% self.inputs.extent_fdr_p_threshold
         script += "stat_filename = '%s';\n"% self.inputs.stat_image
         script += "extent_threshold = %d;\n" % self.inputs.extent_threshold
+       
+        script += "load %s;\n" % self.inputs.spm_mat_file
         script +="""
-load SPM.mat
 FWHM  = SPM.xVol.FWHM;
 df = [SPM.xCon(con_index).eidf SPM.xX.erdf];
 STAT = SPM.xCon(con_index).STAT;

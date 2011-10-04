@@ -105,14 +105,14 @@ def get_print_name(node):
     would be called nodename.BET.fsl
 
     """
-    name = node.name
+    name = node.fullname
     if hasattr(node, '_interface'):
         pkglist = node._interface.__class__.__module__.split('.')
         interface = node._interface.__class__.__name__
         destclass = ''
         if len(pkglist) > 2:
             destclass = '.%s'%pkglist[2]
-        name = '.'.join([node.name, interface]) + destclass
+        name = '.'.join([node.fullname, interface]) + destclass
     return name
 
 def _create_dot_graph(graph, show_connectinfo=False):
@@ -404,9 +404,11 @@ def _remove_identity_nodes(graph):
                             if isinstance(srcport, tuple) and isinstance(src, tuple):
                                 raise ValueError('Does not support two inline functions in series (\'%s\' and \'%s\'). Please use a Function node'%(srcport[1].split("\\n")[0][6:-1],
                                                                                                                                                     src[1].split("\\n")[0][6:-1]))
+                            connect = graph.get_edge_data(srcnode, destnode,
+                                                          default={'connect':[]})
                             if isinstance(src, tuple):
-                                connect = {'connect': [((srcport, src[1], src[2]),
-                                                        inport)]}
+                                connect['connect'].append(((srcport, src[1], src[2]),
+                                                        inport))
                             else:
                                 connect = {'connect': [(srcport, inport)]}
                             old_connect = graph.get_edge_data(srcnode,destnode, default = {'connect':[]})
@@ -586,12 +588,13 @@ def clean_working_directory(outputs, cwd, inputs, needed_outputs,
     for output in needed_outputs:
         output_files.extend(walk_outputs(outputdict[output]))
     needed_files = [path for path, type in output_files if type == 'f']
-    input_files = []
-    inputdict = inputs.get()
-    input_files.extend(walk_outputs(inputdict))
-    needed_files += [path for path, type in input_files if type == 'f']
+    if config.getboolean('execution', 'keep_inputs'):
+        input_files = []
+        inputdict = inputs.get()
+        input_files.extend(walk_outputs(inputdict))
+        needed_files += [path for path, type in input_files if type == 'f']
     for extra in ['_0x*.json', 'provenance.xml', 'pyscript*.m',
-                  'command.txt', 'result*.pklz', '_inputs.pklz']:
+                  'command.txt', 'result*.pklz', '_inputs.pklz', '_node.pklz']:
         needed_files.extend(glob(os.path.join(cwd, extra)))
     if files2keep:
         needed_files.extend(filename_to_list(files2keep))
