@@ -22,6 +22,7 @@ from shutil import rmtree
 from socket import gethostname
 import sys
 from tempfile import mkdtemp
+from warnings import warn
 
 import numpy as np
 
@@ -453,6 +454,11 @@ connected.
             else:
                 runner = getattr(sys.modules[name], '%sPlugin'%plugin)(plugin_args=plugin_args)
         flatgraph = self._create_flat_graph()
+        if 'crashdump_dir' in self.config:
+            warnings.warn(("Deprecated: workflow.config['crashdump_dir']\n"
+                           "Please use config['execution']['crashdump_dir']"))
+            self.config['execution']['crashdump_dir'] = self.config['crashdump_dir']
+            del self.config['crashdump_dir']
         self.config = merge_dict(deepcopy(config._sections), self.config)
         logger.info(str(sorted(self.config)))
         self._set_needed_outputs(flatgraph)
@@ -464,7 +470,8 @@ connected.
             if isinstance(node, MapNode):
                 node.use_plugin = (plugin, plugin_args)
         self._configure_exec_nodes(execgraph)
-        self._write_report_info(self.base_dir, self.name, execgraph)
+        if not str2bool(self.config['execution']['create_report']):
+            self._write_report_info(self.base_dir, self.name, execgraph)
         runner.run(execgraph, updatehash=updatehash, config=self.config)
         return execgraph
 
@@ -1102,6 +1109,7 @@ class Node(WorkflowBase):
             Force rerunning the node
         """
         # check to see if output directory and hash exist
+        self.config = merge_dict(deepcopy(config._sections), self.config)
         self._get_inputs()
         outdir = self.output_dir()
         logger.info("Executing node %s in dir: %s"%(self._id,outdir))
@@ -1374,6 +1382,8 @@ class Node(WorkflowBase):
         self.inputs.update(**opts)
 
     def write_report(self, report_type=None, cwd=None):
+        if not str2bool(self.config['execution']['create_report']):
+            return
         report_dir = os.path.join(cwd, '_report')
         report_file = os.path.join(report_dir, 'report.rst')
         if not os.path.exists(report_dir):
@@ -1585,6 +1595,8 @@ class MapNode(Node):
                                                                 '\n'.join(msg)))
 
     def write_report(self, report_type=None, cwd=None):
+        if not str2bool(self.config['execution']['create_report']):
+            return
         if report_type == 'preexec':
             super(MapNode, self).write_report(report_type=report_type, cwd=cwd)
         if report_type == 'postexec':
@@ -1601,10 +1613,12 @@ class MapNode(Node):
             fp.writelines(write_rst_list(subnode_report_files))
             fp.close()
 
+
     def get_subnodes(self):
         if not self._got_inputs:
             self._get_inputs()
             self._got_inputs = True
+        self._check_iterfield()
         self.write_report(report_type='preexec', cwd = self.output_dir())
         return [node for _, node in self._make_nodes()]
 
@@ -1612,6 +1626,7 @@ class MapNode(Node):
         if not self._got_inputs:
             self._get_inputs()
             self._got_inputs = True
+        self._check_iterfield()
         return len(filename_to_list(getattr(self.inputs, self.iterfield[0])))
 
     def _get_inputs(self):
@@ -1620,6 +1635,27 @@ class MapNode(Node):
                                                    fields=self.iterfield)
         self._inputs.set(**old_inputs)
         super(MapNode, self)._get_inputs()
+
+    def _check_iterfield(self):
+        """Checks iterfield
+
+        * iterfield must be in inputs
+        * number of elements must match across iterfield
+        """
+        for iterfield in self.iterfield:
+            if not isdefined(getattr(self.inputs, iterfield)):
+                raise ValueError(("Input %s is not defined but listed "
+                                  "in iterfields.") % iterfield)
+        if len(self.iterfield) > 1:
+            first_len = len(filename_to_list(getattr(self.inputs,
+                                                     self.iterfield[0])))
+            for iterfield in self.iterfield[1:]:
+                if first_len != len(filename_to_list(getattr(self.inputs,
+                                                             iterfield))):
+                    raise ValueError(("All iterfields of a MapNode have to "
+                                      "have the same length. %s") %
+                                     str(self.inputs))
+
 
     def _run_interface(self, execute=True, updatehash=False):
         """Run the mapnode interface
@@ -1630,15 +1666,7 @@ class MapNode(Node):
         old_cwd = os.getcwd()
         cwd = self.output_dir()
         os.chdir(cwd)
-        for iterfield in self.iterfield:
-            if not isdefined(getattr(self.inputs, iterfield)):
-                raise ValueError("Input %s is not defined but listed in iterfields."%iterfield)
-        if len(self.iterfield) > 1:
-            first_len = len(filename_to_list(getattr(self.inputs, self.iterfield[0])))
-            for iterfield in self.iterfield[1:]:
-                if first_len != len(filename_to_list(getattr(self.inputs, iterfield))):
-                    raise ValueError("All iterfields of a MapNode have to have the same length." + str(self.inputs))
-
+        self._check_iterfield()
         if execute:
             nitems = len(filename_to_list(getattr(self.inputs, self.iterfield[0])))
             nodenames = ['_' + self.name+str(i) for i in range(nitems)]
