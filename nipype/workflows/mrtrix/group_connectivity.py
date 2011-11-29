@@ -33,7 +33,7 @@ def create_mrtrix_group_cff_pipeline_part1(group_list, group_id, data_dir, subje
     >>> subjects_dir = op.abspath('freesurfer')
     >>> fs.FSCommand.set_default_subjects_dir(subjects_dir)
     >>> cff = cmonwk.create_connectivity_pipeline("mrtrix_cmtk")
-    >>> cff.inputs.inputnode.subjects_dir = subjects_dir
+    >>> cff.inputs.inputnode.subjects_dir = subjects_dir # doctest: +SKIP
     >>> cff.inputs.inputnode.subject_id = 'subj1'
     >>> cff.inputs.inputnode.dwi = op.abspath('fsl_course_data/fdt/subj1/data.nii.gz')
     >>> cff.inputs.inputnode.bvecs = op.abspath('fsl_course_data/fdt/subj1/bvecs')
@@ -52,6 +52,8 @@ def create_mrtrix_group_cff_pipeline_part1(group_list, group_id, data_dir, subje
 
         outputnode.connectome
         outputnode.nxstatscff
+        outputnode.nxmatlab
+        outputnode.nxcsv
         outputnode.fa
         outputnode.tracts
         outputnode.filtered_tractography
@@ -112,6 +114,12 @@ def create_mrtrix_group_cff_pipeline_part1(group_list, group_id, data_dir, subje
     l1pipeline.connect([(conmapper, datasink, [("outputnode.connectome", "@l1output.cff"),
                                               ("outputnode.nxstatscff", "@l1output.nxstatscff"),
                                               ("outputnode.nxmatlab", "@l1output.nxmatlab"),
+                                              ("outputnode.nxcsv", "@l1output.nxcsv"),
+                                              ("outputnode.cmatrix_csv", "@l1output.cmatrix_csv"),
+                                              ("outputnode.meanfib_csv", "@l1output.meanfib_csv"),
+                                              ("outputnode.fibstd_csv", "@l1output.fibstd_csv"),
+                                              ("outputnode.cmatrices_csv", "@l1output.cmatrices_csv"),
+                                              ("outputnode.nxmergedcsv", "@l1output.nxmergedcsv"),
                                               ("outputnode.fa", "@l1output.fa"),
                                               ("outputnode.tracts", "@l1output.tracts"),
                                               ("outputnode.filtered_tracts", "@l1output.filtered_tracts"),
