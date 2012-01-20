@@ -42,9 +42,9 @@ the MRtrix Viewer (mrview), and anything that can view Nifti files.
     
 The fiber data is available in Numpy arrays, and the connectivity matrix
 is also produced as a MATLAB matrix. 
-"""
 
-"""
+
+
 Import the workflows
 --------------------
 First, we import the necessary modules from nipype.
@@ -60,7 +60,7 @@ import nipype.interfaces.mrtrix as mrtrix
 import os, os.path as op                     # system functions
 import cmp
 from nipype.workflows.mrtrix.group_connectivity import create_mrtrix_group_cff_pipeline_part1
-from nipype.workflows.camino.group_connectivity import (create_group_cff_pipeline_part2_with_CSVstats, 
+from nipype.workflows.camino.group_connectivity import (create_group_cff_pipeline_part2_with_CSVstats,
 create_group_cff_pipeline_part3_with_CSVstats, create_group_cff_pipeline_part4)
 
 """
@@ -69,7 +69,6 @@ Set the proper directories
 First, we import the necessary modules from nipype.
 """
 
-fs_dir = op.abspath('/usr/local/freesurfer')
 subjects_dir = op.abspath('groupcondatapackage/subjects/')
 data_dir = op.abspath('groupcondatapackage/data/')
 fs.FSCommand.set_default_subjects_dir(subjects_dir)
@@ -84,8 +83,8 @@ with group IDs ('controls', 'coma') as keys, and subject/patient names as values
 """
 
 group_list = {}
-group_list['controls']=['subj1', 'subj2']
-group_list['coma']=['traumatic']
+group_list['controls'] = ['subj1', 'subj2']
+group_list['coma'] = ['traumatic']
 
 """
 The output directory must be named as well.
@@ -104,33 +103,31 @@ is 'coma-controls.cff'. The following code implements the format a-b-c-...x.cff 
 title = ''
 for idx, group_id in enumerate(group_list.keys()):
     title += group_id
-    if not idx == len(group_list.keys())-1:
+    if not idx == len(group_list.keys()) - 1:
         title += '-'
 
     """
-.. warning::
-
-    The 'info' dictionary below is used to define the input files. In this case, the diffusion weighted image contains the string 'dwi'.
-    The same applies to the b-values and b-vector files, and this must be changed to fit your naming scheme.
+    
+    .. warning::
+        The 'info' dictionary below is used to define the input files. In this case, the diffusion weighted image contains the string 'dwi'.
+        The same applies to the b-values and b-vector files, and this must be changed to fit your naming scheme.
+    
+    
     """
-
     info = dict(dwi=[['subject_id', 'dwi']],
-                    bvecs=[['subject_id','bvecs']],
-                    bvals=[['subject_id','bvals']])
+                    bvecs=[['subject_id', 'bvecs']],
+                    bvals=[['subject_id', 'bvals']])
 
     """
-This line creates the processing workflow given the information input about the groups and subjects.
-
-.. seealso::
-
-    * nipype/workflows/mrtrix/group_connectivity.py
+    This line creates the processing workflow given the information input about the groups and subjects.
     
-    * nipype/workflows/mrtrix/connectivity_mapping.py
+    .. seealso::
+        * nipype/workflows/mrtrix/group_connectivity.py
+        * nipype/workflows/mrtrix/connectivity_mapping.py
+        * connectivity_tutorial_advanced.py
     
-    * connectivity_tutorial_advanced.py
-
     """
-    
+
     l1pipeline = create_mrtrix_group_cff_pipeline_part1(group_list, group_id, data_dir, subjects_dir, output_dir, info)
 
     """
@@ -139,7 +136,7 @@ These values relate to the absolute threshold used on the fractional anisotropy 
 in order to identify single-fiber voxels. In brains with more damage, however, it may be necessary
 to reduce the threshold, since their brains are have lower average fractional anisotropy values.
     """
-    
+
     if group_id == 'coma':
         print 'Coma'
         l1pipeline.inputs.connectivity.mapping.threshold_FA.absolute_threshold_value = 0.5
@@ -149,13 +146,13 @@ to reduce the threshold, since their brains are have lower average fractional an
         print 'Control'
         l1pipeline.inputs.connectivity.mapping.threshold_FA.absolute_threshold_value = 0.7
         l1pipeline.inputs.connectivity.mapping.fsl2mrtrix.invert_y = True
-        
+
     """
 These lines relate to inverting the b-vectors in the encoding file, and setting the 
 maximum harmonic order of the pre-tractography spherical deconvolution step. This is
 done to show how to set inputs that will affect both groups.
     """
-    
+
     l1pipeline.inputs.connectivity.mapping.csdeconv.maximum_harmonic_order = 6
     l1pipeline.inputs.connectivity.mapping.tck2trk.flipy = True
     l1pipeline.inputs.connectivity.mapping.tck2trk.flipz = True
@@ -163,17 +160,17 @@ done to show how to set inputs that will affect both groups.
     """
 Define the parcellation scheme to use.
     """
-    
+
     parcellation_name = 'scale500'
     l1pipeline.inputs.connectivity.mapping.Parcellate.parcellation_name = parcellation_name
     cmp_config = cmp.configuration.PipelineConfiguration()
     cmp_config.parcellation_scheme = "Lausanne2008"
     l1pipeline.inputs.connectivity.mapping.CreateMatrix.resolution_network_file = cmp_config._get_lausanne_parcellation('Lausanne2008')[parcellation_name]['node_information_graphml']
-    
+
     """
 Set the maximum number of tracks to obtain
     """
-    
+
     l1pipeline.inputs.connectivity.mapping.probCSDstreamtrack.maximum_number_of_tracks = 100000
 
     """
@@ -181,23 +178,23 @@ The first level pipeline we have tweaked here is run within the for loop.
     """
 
     l1pipeline.run()
-    l1pipeline.write_graph(format='eps',graph2use='flat')
+    l1pipeline.write_graph(format='eps', graph2use='flat')
 
     """
-Next we create and run the second-level pipeline. The purpose of this workflow is simple:
-It is used to merge each subject's CFF file into one, so that there is a single file containing
-all of the networks for each group. This can be useful for performing Network Brain Statistics
-using the NBS plugin in ConnectomeViewer.
-
-.. seealso::
-
-    http://www.connectomeviewer.org/documentation/users/tutorials/tut_nbs.html
-
+    Next we create and run the second-level pipeline. The purpose of this workflow is simple:
+    It is used to merge each subject's CFF file into one, so that there is a single file containing
+    all of the networks for each group. This can be useful for performing Network Brain Statistics
+    using the NBS plugin in ConnectomeViewer.
+    
+    .. seealso::
+    
+        http://www.connectomeviewer.org/documentation/users/tutorials/tut_nbs.html
+    
     """
 
     l2pipeline = create_group_cff_pipeline_part2_with_CSVstats(group_list, group_id, data_dir, subjects_dir, output_dir)
     l2pipeline.run()
-    l2pipeline.write_graph(format='eps',graph2use='flat')
+    l2pipeline.write_graph(format='eps', graph2use='flat')
 
 """
 Now that the for loop is complete there are two grouped CFF files each containing the appropriate subjects.
@@ -206,7 +203,7 @@ It is also convenient to have every subject in a single CFF file, so that is wha
 
 l3pipeline = create_group_cff_pipeline_part3_with_CSVstats(group_list, data_dir, subjects_dir, output_dir, title)
 l3pipeline.run()
-l3pipeline.write_graph(format='eps',graph2use='flat')
+l3pipeline.write_graph(format='eps', graph2use='flat')
 
 """
 The fourth and final workflow averages the networks and saves them in another CFF file
@@ -214,4 +211,4 @@ The fourth and final workflow averages the networks and saves them in another CF
 
 l4pipeline = create_group_cff_pipeline_part4(group_list, data_dir, subjects_dir, output_dir, title)
 l4pipeline.run()
-l4pipeline.write_graph(format='eps',graph2use='flat')
+l4pipeline.write_graph(format='eps', graph2use='flat')
