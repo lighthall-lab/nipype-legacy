@@ -1,4 +1,3 @@
-<<<<<<< OURS
 # emacs: -*- mode: python; py-indent-offset: 4; indent-tabs-mode: nil -*-
 # vi: set ft=python sts=4 ts=4 sw=4 et:
 """
@@ -53,7 +52,7 @@ def read_mrtrix_header(in_file):
     header['count'] = int(header['count'].replace('\n',''))
     header['offset'] = int(header['file'].replace('.',''))
     return header
-          
+
 def read_mrtrix_streamlines(in_file, header, as_generator=True):
     offset = header['offset']
     stream_count = header['count']
@@ -82,7 +81,7 @@ def read_mrtrix_streamlines(in_file, header, as_generator=True):
         return track_points, nonfinite_list
 
     def track_gen(track_points):
-        n_streams = 0  
+        n_streams = 0
         print 'Reading tracks...'
         while True:
             n_pts = track_points[n_streams]
@@ -113,7 +112,7 @@ def read_mrtrix_streamlines(in_file, header, as_generator=True):
                 raise StopIteration
             if n_streams % (float(stream_count)/100) == 0:
                 percent = int(float(n_streams)/float(stream_count)*100)
-                print '{p}% : {n} tracks read'.format(p=percent, n=n_streams)      
+                print '{p}% : {n} tracks read'.format(p=percent, n=n_streams)
 
     track_points, nonfinite_list = points_per_track(offset)
     fileobj.seek(offset)
@@ -135,7 +134,7 @@ class MRTrix2TrackVisOutputSpec(TraitedSpec):
 
 class MRTrix2TrackVis(BaseInterface):
     """
-    Converts MRtrix (.tck) tract files into TrackVis (.trk) format 
+    Converts MRtrix (.tck) tract files into TrackVis (.trk) format
     using functions from dipy
 
     Example
@@ -165,13 +164,13 @@ class MRTrix2TrackVis(BaseInterface):
         trk_header = nb.trackvis.empty_header()
         trk_header['dim'] = [dx,dy,dz]
         trk_header['voxel_size'] = [vx,vy,vz]
-        trk_header['n_count'] = header['count']               
+        trk_header['n_count'] = header['count']
 
         if isdefined(self.inputs.matrix_file) and isdefined(self.inputs.registration_image_file):
             print 'Applying transformation from matrix file {m}'.format(m=self.inputs.matrix_file)
             xfm = np.genfromtxt(self.inputs.matrix_file)
             print xfm
-            
+
             registration_image_file = nb.load(self.inputs.registration_image_file)
             reg_affine = registration_image_file.get_affine()
             r_dx, r_dy, r_dz = get_data_dims(self.inputs.registration_image_file)
@@ -190,7 +189,7 @@ class MRTrix2TrackVis(BaseInterface):
 
             axcode = aff2axcodes(reg_affine)
             trk_header['voxel_order'] = axcode[0]+axcode[1]+axcode[2]
-                        
+
             final_streamlines = move_streamlines(transformed_streamlines, aff)
             trk_tracks = ((ii,None,None) for ii in final_streamlines)
             trk.write(out_filename, trk_tracks, trk_header)
@@ -198,7 +197,7 @@ class MRTrix2TrackVis(BaseInterface):
             print 'New TrackVis Header:'
             print trk_header
         else:
-            print 'Applying transformation from scanner coordinates to {img}'.format(img=self.inputs.image_file)            
+            print 'Applying transformation from scanner coordinates to {img}'.format(img=self.inputs.image_file)
             axcode = aff2axcodes(affine)
             trk_header['voxel_order'] = axcode[0]+axcode[1]+axcode[2]
             trk_header['vox_to_ras'] = affine
