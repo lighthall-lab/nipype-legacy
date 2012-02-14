@@ -17,7 +17,13 @@ import nibabel as nb, nibabel.trackvis as trk
 import numpy as np
 from nibabel.trackvis import HeaderError
 from nibabel.volumeutils import native_code
-from dipy.tracking.utils import move_streamlines, affine_from_fsl_mat_file
+
+try:
+    package_check('dipy')
+except Exception, e:
+    warnings.warn('dipy not installed')
+else:
+    from dipy.tracking.utils import move_streamlines, affine_from_fsl_mat_file
 from nibabel.orientations import aff2axcodes
 
 def transform_to_affine(streams, header, affine):
