@@ -175,6 +175,7 @@ class SPMCommandInputSpec(BaseInterfaceInputSpec):
     mfile = traits.Bool(True, desc='Run m-code using m-file',
                           usedefault=True)
     use_mcr = traits.Bool(desc='Run m-code using SPM MCR')
+    defaults = traits.Dict({}, usedefault=True)
 
 class SPMCommand(BaseInterface):
     """Extends `BaseInterface` class to implement SPM specific interfaces.
@@ -394,7 +395,12 @@ class SPMCommand(BaseInterface):
         fprintf('SPM version: %s Release: %s\\n',name, ver);
         fprintf('SPM path: %s\\n',which('spm'));
         spm('Defaults','fMRI');
-
+        """
+        if isdefined(self.inputs.defaults):
+            for key,value in self.inputs.defaults.iteritems():
+                mscript += "spm_get_defaults('%s', %s)\n"%(key, value)
+        
+        mscript += """
         if strcmp(spm('ver'),'SPM8'), spm_jobman('initcfg');end\n
         """
         if self.mlab.inputs.mfile:

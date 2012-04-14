@@ -10,6 +10,7 @@ and spm to access spm tools.
    >>> os.chdir(datadir)
 
 """
+import sys
 
 __docformat__ = 'restructuredtext'
 
@@ -164,12 +165,14 @@ class EstimateModelInputSpec(SPMCommandInputSpec):
                                     desc='Classical, Bayesian2, Bayesian (dict)',
                                     mandatory=True)
     flags = traits.Str(desc='optional arguments (opt)')
+    save_residuals = traits.Bool(False, usedefault=True)
 
 
 class EstimateModelOutputSpec(TraitedSpec):
     mask_image = File(exists=True, desc='binary mask to constrain estimation')
     beta_images = OutputMultiPath(File(exists=True), desc='design parameter estimates')
-    residual_image = File(exists=True, desc='Mean-squared image of the residuals')
+    residual_images = traits.List(File(exists=True), desc='residuals')
+    mean_residual_image = File(exists=True, desc='Mean-squared image of the residuals')
     RPVimage = File(exists=True, desc='Resels per voxel image')
     spm_mat_file = File(exist=True, desc='Updated SPM mat file')
 
@@ -210,6 +213,13 @@ class EstimateModel(SPMCommand):
             einputs[0].update(self.inputs.flags)
         return einputs
 
+    def _run_interface(self, runtime):
+        if self.inputs.save_residuals:
+            self.inputs.defaults.update({'stats.maxres': '%d' % sys.maxint,
+                                         'stats.saveres': '1'})
+        super(EstimateModel, self)._run_interface(runtime)
+        return runtime
+
     def _list_outputs(self):
         outputs = self._outputs().get()
         pth, _ = os.path.split(self.inputs.spm_mat_file)
@@ -222,7 +232,10 @@ class EstimateModel(SPMCommand):
         if betas:
             outputs['beta_images'] = betas
         resms = os.path.join(pth, 'ResMS.img')
-        outputs['residual_image'] = resms
+        outputs['mean_residual_image'] = resms
+        if self.inputs.save_residuals:
+            res = glob(os.path.join(pth, 'ResI*.img'))
+            outputs['residual_images'] = res
         rpv = os.path.join(pth, 'RPV.img')
         outputs['RPVimage'] = rpv
         spm = os.path.join(pth, 'SPM.mat')
