@@ -26,6 +26,7 @@ import itertools
 
 from .. import config, logging
 import matplotlib
+from numpy.lib.function_base import corrcoef
 matplotlib.use(config.get("execution", "matplotlib_backend"))
 import matplotlib.pyplot as plt
 
@@ -887,4 +888,71 @@ class AddCSVColumn(BaseInterface):
             ext = '.csv'
         out_file = op.abspath(name + ext)
         outputs['csv_file'] = out_file
+        return outputs
+
+
+class CorrelationMapInputSpec(BaseInterfaceInputSpec):
+    volume1 = File(exists=True, mandatory=True)
+    volume2 = File(exists=True, mandatory=True)
+    mask_volume = File(exists=True)
+
+
+class CorrelationMapOutputSpec(TraitedSpec):
+    covariance_map = File(exists=True)
+    correlation_map = File(exists=True)
+
+
+class CorrelationMap(BaseInterface):
+
+    input_spec = CorrelationMapInputSpec
+    output_spec = CorrelationMapOutputSpec
+
+    _covariance_map = "covariance.nii"
+    _correaltion_map = "correlation.nii"
+
+    def _run_interface(self, runtime):
+        volume1_nii = nb.load(self.inputs.volume1)
+        
+        volume1_data = volume1_nii.get_data()
+        print volume1_data.shape
+        volume2_data = nb.load(self.inputs.volume2).get_data()
+
+        if isdefined(self.inputs.mask_volume):
+            mask_data = nb.load(self.inputs.mask_volume).get_data()
+            mask_data = np.logical_not(np.logical_or(mask_data == 0, np.isnan(mask_data)))
+        else:
+            mask_data = np.ones(volume1_nii.get_shape()[:3])
+
+        covariance_data = np.zeros(volume1_nii.get_shape()[:3])
+        correlation_data = np.zeros(volume1_nii.get_shape()[:3])
+
+        for i in range(mask_data.sum()):
+            timeseries1 = volume1_data[mask_data,:][i,:]
+            timeseries2 = volume2_data[mask_data,:][i,:]
+            
+            print timeseries1.shape 
+            covariance = np.cov(timeseries1, timeseries2)
+            print covariance
+            try:
+                d = np.diag(covariance)
+            except ValueError: # scalar covariance
+                correlation = 1
+            else:
+                correlation = covariance/np.sqrt(np.multiply.outer(d,d))
+            print correlation
+            covariance_data[mask_data][i] = covariance[0,1]
+            correlation_data[mask_data][i] = correlation[0,1]
+
+        img = nb.Nifti1Image(covariance_data, volume1_nii.get_affine(), volume1_nii.get_header())
+        nb.save(img, self._covariance_map)
+
+        img = nb.Nifti1Image(correlation_data, volume1_nii.get_affine(), volume1_nii.get_header())
+        nb.save(img, self._correlation_map)
+
+        return runtime
+
+    def _list_outputs(self):
+        outputs = self.output_spec().get()
+        outputs['covariance_map'] = os.path.abspath(self._covariance_map)
+        outputs['correlation_map'] = os.path.abspath(self._correlation_map)
         return outputs
