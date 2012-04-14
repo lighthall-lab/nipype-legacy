@@ -6,6 +6,8 @@ import numpy as np
 
 from ...utils.misc import package_check
 from ...utils.filemanip import split_filename
+from nipy.algorithms.registration.histogram_registration import HistogramRegistration
+from nipy.algorithms.registration.affine import Affine
 
 
 try:
