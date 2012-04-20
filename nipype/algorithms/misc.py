@@ -342,7 +342,6 @@ class OverlapInputSpec(BaseInterfaceInputSpec):
     volume1 = File(exists=True, mandatory=True, desc="Has to have the same dimensions as volume2.")
     volume2 = File(exists=True, mandatory=True, desc="Has to have the same dimensions as volume1.")
     mask_volume = File(exists=True, desc="calculate overlap only within this mask.")
-    out_file = File("diff.nii", usedefault=True)
 
 
 class OverlapOutputSpec(TraitedSpec):
@@ -396,7 +395,7 @@ class Overlap(BaseInterface):
         both_data[origdata1] = 1
         both_data[origdata2] += 2
 
-        nb.save(nb.Nifti1Image(both_data, nii1.get_affine(), nii1.get_header()), self.inputs.out_file)
+        nb.save(nb.Nifti1Image(both_data, nii1.get_affine(), nii1.get_header()), 'diff.nii')
 
         return runtime
 
@@ -405,7 +404,7 @@ class Overlap(BaseInterface):
         for method in ("dice", "jaccard"):
             outputs[method] = getattr(self, '_' + method)
         outputs['volume_difference'] = self._volume
-        outputs['diff_file'] = os.path.abspath(self.inputs.out_file)
+        outputs['diff_file'] = os.path.abspath('diff.nii')
         return outputs
 
 
@@ -914,7 +913,6 @@ class CorrelationMap(BaseInterface):
         volume1_nii = nb.load(self.inputs.volume1)
         
         volume1_data = volume1_nii.get_data()
-        print volume1_data.shape
         volume2_data = nb.load(self.inputs.volume2).get_data()
 
         if isdefined(self.inputs.mask_volume):
@@ -931,17 +929,13 @@ class CorrelationMap(BaseInterface):
         for i in range(mask_data.sum()):
             timeseries1 = masked_data1[i,:]
             timeseries2 = masked_data2[i,:]
-            
-            print timeseries1.shape 
             covariance = np.cov(timeseries1, timeseries2)
-            print covariance
             try:
                 d = np.diag(covariance)
             except ValueError: # scalar covariance
                 correlation = 1
             else:
                 correlation = covariance/np.sqrt(np.multiply.outer(d,d))
-            print correlation
             covariance_masked[i] = covariance[0,1]
             correlation_masked[i] = correlation[0,1]
 
