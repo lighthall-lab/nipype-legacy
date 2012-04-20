@@ -908,7 +908,7 @@ class CorrelationMap(BaseInterface):
     output_spec = CorrelationMapOutputSpec
 
     _covariance_map = "covariance.nii"
-    _correaltion_map = "correlation.nii"
+    _correlation_map = "correlation.nii"
 
     def _run_interface(self, runtime):
         volume1_nii = nb.load(self.inputs.volume1)
@@ -918,17 +918,19 @@ class CorrelationMap(BaseInterface):
         volume2_data = nb.load(self.inputs.volume2).get_data()
 
         if isdefined(self.inputs.mask_volume):
-            mask_data = nb.load(self.inputs.mask_volume).get_data()
+            mask_data = np.array(nb.load(self.inputs.mask_volume).get_data())
             mask_data = np.logical_not(np.logical_or(mask_data == 0, np.isnan(mask_data)))
         else:
             mask_data = np.ones(volume1_nii.get_shape()[:3])
 
-        covariance_data = np.zeros(volume1_nii.get_shape()[:3])
-        correlation_data = np.zeros(volume1_nii.get_shape()[:3])
-
+        covariance_masked = np.zeros(mask_data.sum())
+        correlation_masked = np.zeros(mask_data.sum())
+        
+        masked_data1 = np.array(volume1_data[mask_data,:])
+        masked_data2 = np.array(volume2_data[mask_data,:])
         for i in range(mask_data.sum()):
-            timeseries1 = volume1_data[mask_data,:][i,:]
-            timeseries2 = volume2_data[mask_data,:][i,:]
+            timeseries1 = masked_data1[i,:]
+            timeseries2 = masked_data2[i,:]
             
             print timeseries1.shape 
             covariance = np.cov(timeseries1, timeseries2)
@@ -940,8 +942,13 @@ class CorrelationMap(BaseInterface):
             else:
                 correlation = covariance/np.sqrt(np.multiply.outer(d,d))
             print correlation
-            covariance_data[mask_data][i] = covariance[0,1]
-            correlation_data[mask_data][i] = correlation[0,1]
+            covariance_masked[i] = covariance[0,1]
+            correlation_masked[i] = correlation[0,1]
+
+        covariance_data = np.zeros(volume1_nii.get_shape()[:3])
+        covariance_data[mask_data] = covariance_masked
+        correlation_data = np.zeros(volume1_nii.get_shape()[:3])
+        correlation_data[mask_data] = correlation_masked
 
         img = nb.Nifti1Image(covariance_data, volume1_nii.get_affine(), volume1_nii.get_header())
         nb.save(img, self._covariance_map)
