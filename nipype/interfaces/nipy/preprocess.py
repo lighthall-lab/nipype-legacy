@@ -57,7 +57,7 @@ class ComputeMask(BaseInterface):
 
         brain_mask = compute_mask(**args)
         _, name, ext = split_filename(self.inputs.mean_volume)
-        self._brain_mask_path = os.path.abspath("%s_mask.%s" % (name, ext))
+        self._brain_mask_path = os.path.abspath("%s_mask%s" % (name, ext))
         nb.save(nb.Nifti1Image(brain_mask.astype(np.uint8),
                 nii.get_affine()), self._brain_mask_path)
 
