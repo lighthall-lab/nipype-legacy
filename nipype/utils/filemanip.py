@@ -249,17 +249,11 @@ def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=Non
             try:
                 fmlogger.debug("Copying File: %s->%s" \
                                   % (newfile, originalfile))
-                os.unlink(newfile)
                 shutil.copyfile(originalfile, newfile)
                 if restore_perm:
                     umask = os.umask(0)
                     os.umask(umask)
-                    mode = []
-                    for c in str(umask):
-                        i = int(c)
-                        mode.append(max(7-c,6))
-                    mode = int(''.join(mode))
-                    os.chmod(newfile, mode)
+                    os.chmod(newfile, ~umask & 0666)
             except shutil.Error, e:
                 fmlogger.warn(e.message)
         else:
@@ -271,8 +265,8 @@ def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=Non
         matofile = originalfile[:-4] + ".mat"
         if os.path.exists(matofile):
             matnfile = newfile[:-4] + ".mat"
-            copyfile(matofile, matnfile, copy)
-        copyfile(hdrofile, hdrnfile, copy)
+            copyfile(matofile, matnfile, copy, restore_perm=restore_perm)
+        copyfile(hdrofile, hdrnfile, copy, restore_perm=restore_perm)
 
     return newfile
 

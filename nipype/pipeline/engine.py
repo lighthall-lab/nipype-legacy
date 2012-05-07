@@ -1382,7 +1382,7 @@ class Node(WorkflowBase):
                     for v2 in v:
                         ro(v2)
                 elif isinstance(v, dict):
-                    for v2 in val.values():
+                    for v2 in v.values():
                         ro(v2)
 
             for val in outputs.get().values():
