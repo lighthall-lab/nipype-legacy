@@ -177,7 +177,7 @@ def hash_timestamp(afile):
         md5hex = md5obj.hexdigest()
     return md5hex
 
-def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=None):
+def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=None, restore_perm=False):
     """Copy or symlink ``originalfile`` to ``newfile``.
 
     Parameters
@@ -189,6 +189,8 @@ def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=Non
     copy : Bool
         specifies whether to copy or symlink files
         (default=False) but only for POSIX systems
+    restore_perm : Bool
+        use umask to set new permissions for the copied files
 
     Returns
     -------
@@ -247,7 +249,17 @@ def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=Non
             try:
                 fmlogger.debug("Copying File: %s->%s" \
                                   % (newfile, originalfile))
+                os.unlink(newfile)
                 shutil.copyfile(originalfile, newfile)
+                if restore_perm:
+                    umask = os.umask(0)
+                    os.umask(umask)
+                    mode = []
+                    for c in str(umask):
+                        i = int(c)
+                        mode.append(max(7-c,6))
+                    mode = int(''.join(mode))
+                    os.chmod(newfile, mode)
             except shutil.Error, e:
                 fmlogger.warn(e.message)
         else:
@@ -264,7 +276,7 @@ def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=Non
 
     return newfile
 
-def copyfiles(filelist, dest, copy=False, create_new=False):
+def copyfiles(filelist, dest, copy=False, create_new=False, restore_perm=False):
     """Copy or symlink files in ``filelist`` to ``dest`` directory.
 
     Parameters
@@ -294,7 +306,7 @@ def copyfiles(filelist, dest, copy=False, create_new=False):
                 destfile = outfiles[i]
             else:
                 destfile = fname_presuffix(f, newpath=outfiles[0])
-            destfile = copyfile(f,destfile,copy,create_new=create_new)
+            destfile = copyfile(f,destfile,copy,create_new=create_new, restore_perm=restore_perm)
             newfiles.insert(i,destfile)
     return newfiles
 

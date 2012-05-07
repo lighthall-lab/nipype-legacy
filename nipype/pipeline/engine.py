@@ -1428,7 +1428,8 @@ class Node(WorkflowBase):
                             newfiles = copyfiles(infiles,
                                                  [outdir],
                                                  copy=info['copy'],
-                                                 create_new=True)
+                                                 create_new=True,
+                                                 restore_perm=True)
                     else:
                         newfiles = fnames_presuffix(infiles, newpath=outdir)
                     if not isinstance(files, list):
