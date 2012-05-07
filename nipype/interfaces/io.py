@@ -309,7 +309,7 @@ class DataSink(IOBase):
                             else:
                                 raise(inst)
                     iflogger.debug("copyfile: %s %s"%(src, dst))
-                    copyfile(src, dst, copy=True, hashmethod='content')
+                    copyfile(src, dst, copy=True, hashmethod='content', restore_perm=True)
                 elif os.path.isdir(src):
                     dst = self._get_dst(os.path.join(src,''))
                     dst = os.path.join(tempoutdir, dst)
@@ -608,6 +608,7 @@ class FreeSurferSource(IOBase):
     """
     input_spec = FSSourceInputSpec
     output_spec = FSSourceOutputSpec
+    _always_run = True
 
     def _get_files(self, path, key, dirval, altkey=None):
         globsuffix = ''
