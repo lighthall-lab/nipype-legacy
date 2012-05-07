@@ -1360,6 +1360,7 @@ class Node(WorkflowBase):
                                                      self.needed_outputs,
                                                      self.config,
                                                      dirs2keep=dirs2keep)
+            self._make_read_only(result.outputs)
             self._save_results(result, cwd)
         else:
             logger.info("Collecting precomputed outputs")
@@ -1371,6 +1372,21 @@ class Node(WorkflowBase):
                              "rerunning node."))
                 result = self._run_command(execute=True, copyfiles=False)
         return result
+
+    def _make_read_only(self, outputs):
+        if outputs:
+            def ro(v):
+                if isinstance(v, str) and os.path.isfile(v):
+                    os.chmod(v, 0400)
+                elif isinstance(v, list):
+                    for v2 in v:
+                        ro(v2)
+                elif isinstance(v, dict):
+                    for v2 in val.values():
+                        ro(v2)
+
+            for val in outputs.get().values():
+                ro(val)
 
     def _strip_temp(self, files, wd):
         out = []
