@@ -249,6 +249,8 @@ def copyfile(originalfile, newfile, copy=False, create_new=False, hashmethod=Non
             try:
                 fmlogger.debug("Copying File: %s->%s" \
                                   % (newfile, originalfile))
+                if os.path.exists(newfile):
+                    os.unlink(newfile)
                 shutil.copyfile(originalfile, newfile)
                 if restore_perm:
                     umask = os.umask(0)
