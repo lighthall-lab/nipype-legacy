@@ -919,7 +919,7 @@ class CorrelationMap(BaseInterface):
             mask_data = np.array(nb.load(self.inputs.mask_volume).get_data())
             mask_data = np.logical_not(np.logical_or(mask_data == 0, np.isnan(mask_data)))
         else:
-            mask_data = np.ones(volume1_nii.get_shape()[:3])
+            mask_data = np.ones(volume1_nii.get_shape()[:3]) == 1
 
         covariance_masked = np.zeros(mask_data.sum())
         correlation_masked = np.zeros(mask_data.sum())
