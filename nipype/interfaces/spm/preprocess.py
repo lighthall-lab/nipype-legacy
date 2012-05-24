@@ -8,6 +8,7 @@
    >>> datadir = os.path.realpath(os.path.join(filepath, '../../testing/data'))
    >>> os.chdir(datadir)
 """
+import math
 
 __docformat__ = 'restructuredtext'
 
@@ -868,7 +869,7 @@ class DARTEL(SPMCommand):
                 new_param = {}
                 new_param['its'] = param[0]
                 new_param['rparam'] = list(param[1])
-                new_param['K'] = param[2]
+                new_param['K'] = int(math.log(param[2],2))
                 new_param['slam'] = param[3]
                 params.append(new_param)
             return params
