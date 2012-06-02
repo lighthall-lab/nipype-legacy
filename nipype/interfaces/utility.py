@@ -138,6 +138,7 @@ class RenameInputSpec(DynamicTraitedSpec):
     format_string = traits.String(mandatory=True,
                                   desc="Python formatting string for output template")
     parse_string = traits.String(desc="Python regexp parse string to define replacement inputs")
+    match_full_path = traits.Bool(False, usedefault=True, desc="Use full patch to match the parse_string instead of just the file name.")
 
 
 class RenameOutputSpec(TraitedSpec):
@@ -201,7 +202,11 @@ class Rename(IOBase):
     def _rename(self):
         fmt_dict = dict()
         if isdefined(self.inputs.parse_string):
-            m = re.search(self.inputs.parse_string, os.path.split(self.inputs.in_file)[1])
+            if self.inputs.match_full_path:
+                search_str = self.inputs.in_file
+            else:
+                search_str = os.path.split(self.inputs.in_file)[1]
+            m = re.search(self.inputs.parse_string, search_str)
             if m:
                 fmt_dict.update(m.groupdict())
         for field in self.fmt_fields:
