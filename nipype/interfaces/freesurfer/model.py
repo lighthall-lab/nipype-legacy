@@ -116,7 +116,7 @@ class GLMFitInputSpec(FSTraitedSpec):
     glm_dir = traits.Str(argstr='--glmdir %s', desc='save outputs to dir',
                          genfile=True)
     in_file = File(desc='input 4D file', argstr='--y %s', mandatory=True,
-                  copyfile=False, hash_files=False)
+                  copyfile=False)
     _design_xor = ('fsgd', 'design', 'one_sample')
     fsgd = traits.Tuple(File(exists=True), traits.Enum('doss', 'dods'),
                         argstr='--fsgd %s %s', xor=_design_xor,
@@ -340,7 +340,7 @@ class OneSampleTTest(GLMFit):
 
 class BinarizeInputSpec(FSTraitedSpec):
     in_file = File(exists=True, argstr='--i %s', mandatory=True,
-                  copyfile=False, desc='input volume', hash_files=False)
+                  copyfile=False, desc='input volume')
     min = traits.Float(argstr='--min %f',
                        desc='min thresh')
     max = traits.Float(argstr='--max %f',
@@ -462,7 +462,7 @@ class Binarize(FSCommand):
 class ConcatenateInputSpec(FSTraitedSpec):
     in_files = InputMultiPath(File(exists=True),
                  desc='Individual volumes to be concatenated',
-                 argstr='--i %s...', mandatory=True, hash_files=False)
+                 argstr='--i %s...', mandatory=True)
     concatenated_file = File(desc='Output volume', argstr='--o %s',
                              genfile=True)
     sign = traits.Enum('abs', 'pos', 'neg', argstr='--%s',
@@ -556,7 +556,7 @@ class SegStatsInputSpec(FSTraitedSpec):
     partial_volume_file = File(exists=True, argstr='--pv %f',
                   desc='Compensate for partial voluming')
     in_file = File(exists=True, argstr='--i %s',
-                 desc='Use the segmentation to report stats on this volume', hash_files=False)
+                 desc='Use the segmentation to report stats on this volume')
     frame = traits.Int(argstr='--frame %d',
                        desc='Report stats on nth frame of input volume')
     multiply = traits.Float(argstr='--mul %f', desc='multiply input by val')
