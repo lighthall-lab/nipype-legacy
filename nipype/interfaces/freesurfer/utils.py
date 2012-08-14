@@ -103,7 +103,7 @@ class SampleToSurfaceInputSpec(FSTraitedSpec):
                                desc="multiple all intensities by scale factor")
     frame = traits.Int(argstr="--frame %d", desc="save only one frame (0-based)")
 
-    out_file = File(argstr="--o %s", genfile=True, desc="surface file to write")
+    out_file = File(argstr="--o %s", genfile=True, desc="surface file to write", hash_files=False)
     out_type = traits.Enum(filetypes, argstr="--out_type %s", desc="output file type")
     hits_file = traits.Either(traits.Bool, File(exists=True), argstr="--srchit %s",
                               desc="save image with number of hits at each voxel")
@@ -235,7 +235,7 @@ class SurfaceSmoothInputSpec(FSTraitedSpec):
     cortex = traits.Bool(True, argstr="--cortex", usedefault=True, desc="only smooth within $hemi.cortex.label")
     reshape = traits.Bool(argstr="--reshape",
                           desc="reshape surface vector to fit in non-mgh format")
-    out_file = File(argstr="--tval %s", genfile=True, desc="surface file to write")
+    out_file = File(argstr="--tval %s", genfile=True, desc="surface file to write", hash_files=False)
 
 
 class SurfaceSmoothOutputSpec(TraitedSpec):
@@ -313,7 +313,7 @@ class SurfaceTransformInputSpec(FSTraitedSpec):
     target_type = traits.Enum(filetypes, argstr='--tfmt %s', help="output format")
     reshape = traits.Bool(argstr="--reshape", help="reshape output surface to conform with Nifti")
     reshape_factor = traits.Int(argstr="--reshape-factor", help="number of slices in reshaped image")
-    out_file = File(argstr="--tval %s", genfile=True, desc="surface file to write")
+    out_file = File(argstr="--tval %s", genfile=True, desc="surface file to write", hash_files=False)
 
 
 class SurfaceTransformOutputSpec(TraitedSpec):
@@ -735,7 +735,7 @@ class MRIsConvertInputSpec(FSTraitedSpec):
     origname = traits.String(argstr="-o %s", desc="read orig positions")
 
     in_file = File(exists=True, mandatory=True, position=-2, argstr='%s', desc='File to read/convert')
-    out_file = File(argstr='./%s', position=-1, genfile=True, desc='output filename or True to generate one')
+    out_file = File(argstr='./%s', position=-1, genfile=True, desc='output filename or True to generate one', hash_files=False)
     #Not really sure why the ./ is necessary but the module fails without it
 
     out_datatype = traits.Enum("ico", "tri", "stl", "vtk", "gii", "mgh", "mgz", mandatory=True,
@@ -802,7 +802,7 @@ class MRITessellateInputSpec(FSTraitedSpec):
     in_file = File(exists=True, mandatory=True, position=-3, argstr='%s', desc='Input volume to tesselate voxels from.')
     label_value = traits.Int(position=-2, argstr='%d', mandatory=True,
         desc='Label value which to tesselate from the input volume. (integer, if input is "filled.mgz" volume, 127 is rh, 255 is lh)')
-    out_file = File(argstr='./%s', position=-1, genfile=True, desc='output filename or True to generate one')
+    out_file = File(argstr='./%s', position=-1, genfile=True, desc='output filename or True to generate one', hash_files=False)
     tesselate_all_voxels = traits.Bool(argstr='-a', desc='Tessellate the surface of all voxels with different labels')
     use_real_RAS_coordinates = traits.Bool(argstr='-n', desc='Saves surface with real RAS coordinates where c_(r,a,s) != 0')
 
@@ -859,7 +859,7 @@ class MRIMarchingCubesInputSpec(FSTraitedSpec):
         desc='Label value which to tesselate from the input volume. (integer, if input is "filled.mgz" volume, 127 is rh, 255 is lh)')
     connectivity_value = traits.Int(1, position=-1, argstr='%d', usedefault=True,
         desc='Alter the marching cubes connectivity: 1=6+,2=18,3=6,4=26 (default=1)')
-    out_file = File(argstr='./%s', position=-2, genfile=True, desc='output filename or True to generate one')
+    out_file = File(argstr='./%s', position=-2, genfile=True, desc='output filename or True to generate one', hash_files=False)
 
 class MRIMarchingCubesOutputSpec(TraitedSpec):
     """
@@ -923,9 +923,9 @@ class SmoothTessellationInputSpec(FSTraitedSpec):
     normalize_area = traits.Bool(argstr='-area', desc='Normalizes the area after smoothing')
     use_momentum = traits.Bool(argstr='-m', desc='Uses momentum')
 
-    out_file = File(argstr='./%s', position=2, genfile=True, desc='output filename or True to generate one')
-    out_curvature_file = File(argstr='-c ./%s', desc='Write curvature to ?h.curvname (default "curv")')
-    out_area_file = File(argstr='-b ./%s', desc='Write area to ?h.areaname (default "area")')
+    out_file = File(argstr='./%s', position=2, genfile=True, desc='output filename or True to generate one', hash_files=False)
+    out_curvature_file = File(argstr='-c ./%s', desc='Write curvature to ?h.curvname (default "curv")', hash_files=False)
+    out_area_file = File(argstr='-b ./%s', desc='Write area to ?h.areaname (default "area")', hash_files=False)
 
 class SmoothTessellationOutputSpec(TraitedSpec):
     """
@@ -979,7 +979,7 @@ class MakeAverageSubjectInputSpec(FSTraitedSpec):
                                desc='freesurfer subjects ids to average',
                                mandatory=True, sep=' ')
     out_name = File('average', argstr='--out %s',
-                    desc='name for the average subject', usedefault=True)
+                    desc='name for the average subject', usedefault=True, hash_files=False)
 
 
 class MakeAverageSubjectOutputSpec(TraitedSpec):

@@ -22,7 +22,7 @@ from nipype.interfaces.base import (TraitedSpec, File, traits, InputMultiPath,
 
 class MRISPreprocInputSpec(FSTraitedSpec):
     out_file = File(argstr='--out %s', genfile=True,
-                   desc='output filename')
+                   desc='output filename', hash_files=False)
     target = traits.Str(argstr='--target %s', mandatory=True,
                          desc='target subject name')
     hemi = traits.Enum('lh', 'rh', argstr='--hemi %s',
@@ -116,7 +116,7 @@ class GLMFitInputSpec(FSTraitedSpec):
     glm_dir = traits.Str(argstr='--glmdir %s', desc='save outputs to dir',
                          genfile=True)
     in_file = File(desc='input 4D file', argstr='--y %s', mandatory=True,
-                  copyfile=False)
+                  copyfile=False, hash_files=False)
     _design_xor = ('fsgd', 'design', 'one_sample')
     fsgd = traits.Tuple(File(exists=True), traits.Enum('doss', 'dods'),
                         argstr='--fsgd %s %s', xor=_design_xor,
@@ -340,7 +340,7 @@ class OneSampleTTest(GLMFit):
 
 class BinarizeInputSpec(FSTraitedSpec):
     in_file = File(exists=True, argstr='--i %s', mandatory=True,
-                  copyfile=False, desc='input volume')
+                  copyfile=False, desc='input volume', hash_files=False)
     min = traits.Float(argstr='--min %f',
                        desc='min thresh')
     max = traits.Float(argstr='--max %f',
@@ -462,7 +462,7 @@ class Binarize(FSCommand):
 class ConcatenateInputSpec(FSTraitedSpec):
     in_files = InputMultiPath(File(exists=True),
                  desc='Individual volumes to be concatenated',
-                 argstr='--i %s...', mandatory=True)
+                 argstr='--i %s...', mandatory=True, hash_files=False)
     concatenated_file = File(desc='Output volume', argstr='--o %s',
                              genfile=True)
     sign = traits.Enum('abs', 'pos', 'neg', argstr='--%s',
@@ -552,11 +552,11 @@ class SegStatsInputSpec(FSTraitedSpec):
                              mandatory=True,
                              desc='subject hemi label : use surface label')
     summary_file = File(argstr='--sum %s', genfile=True,
-                   desc='Segmentation stats summary table file')
+                   desc='Segmentation stats summary table file', hash_files=False)
     partial_volume_file = File(exists=True, argstr='--pv %f',
                   desc='Compensate for partial voluming')
     in_file = File(exists=True, argstr='--i %s',
-                 desc='Use the segmentation to report stats on this volume')
+                 desc='Use the segmentation to report stats on this volume', hash_files=False)
     frame = traits.Int(argstr='--frame %d',
                        desc='Report stats on nth frame of input volume')
     multiply = traits.Float(argstr='--mul %f', desc='multiply input by val')
@@ -721,7 +721,7 @@ class Label2VolInputSpec(FSTraitedSpec):
     surface = traits.Str(argstr='--surf %s',
                          desc='use surface instead of white')
     vol_label_file = File(argstr='--o %s', genfile=True,
-                          desc='output volume')
+                          desc='output volume', hash_files=False)
     label_hit_file = File(argstr='--hits %s',
                            desc='file with each frame is nhits for a label')
     map_label_stat = File(argstr='--label-stat %s',
@@ -782,7 +782,7 @@ class MS_LDAInputSpec(FSTraitedSpec):
                         desc='filename for the LDA weights (input or output)')
     output_synth = traits.File(exists=False, argstr='-synth %s',
                                mandatory=True,
-                             desc='filename for the synthesized output volume')
+                             desc='filename for the synthesized output volume', hash_files=False)
     label_file = traits.File(exists=True, argstr='-label %s',
                              desc='filename of the label volume')
     mask_file = traits.File(exists=True, argstr='-mask %s',

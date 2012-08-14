@@ -32,7 +32,7 @@ class ParseDICOMDirInputSpec(FSTraitedSpec):
     dicom_dir = Directory(exists=True, argstr='--d %s', mandatory=True,
                          desc='path to siemens dicom directory')
     dicom_info_file = File('dicominfo.txt', argstr='--o %s', usedefault=True,
-                           desc='file to which results are written')
+                           desc='file to which results are written', hash_files=False)
     sortbyrun = traits.Bool(argstr='--sortbyrun', desc='assign run numbers')
     summarize = traits.Bool(argstr='--summarize',
                             desc='only print out info for run leaders')
@@ -258,7 +258,7 @@ class MRIConvertInputSpec(FSTraitedSpec):
                   desc='File to read/convert')
     out_file = File(argstr='--output_volume %s',
                    position=-1, genfile=True,
-                   desc='output filename or True to generate one')
+                   desc='output filename or True to generate one', hash_files=False)
     conform = traits.Bool(argstr='--conform',
                           desc='conform to 256^3')
     conform_min = traits.Bool(argstr='--conform_min',
@@ -304,7 +304,7 @@ class MRIConvertInputSpec(FSTraitedSpec):
     no_translate = traits.Bool(argstr='--no_translate',
                               desc='???')
     status_file = File(argstr='--status %s',
-                      desc='status file for DICOM conversion')
+                      desc='status file for DICOM conversion', hash_files=False)
     sdcm_list = File(exists=True, argstr='--sdcmlist %s',
                     desc='list of DICOM files for conversion')
     template_info = traits.Bool('--template_info',
@@ -536,7 +536,7 @@ class ResampleInputSpec(FSTraitedSpec):
     in_file = File(exists=True, argstr='-i %s', mandatory=True,
                   desc='file to resample', position=-2)
     resampled_file = File(argstr='-o %s', desc='output filename', genfile=True,
-                          position=-1)
+                          position=-1, hash_files=False)
     voxel_size = traits.Tuple(traits.Float, traits.Float, traits.Float,
                        argstr='-vs %.2f %.2f %.2f', desc='triplet of output voxel sizes',
                               mandatory=True)
@@ -684,7 +684,7 @@ class BBRegisterInputSpec(FSTraitedSpec):
                                    desc="Register middle frame of 4D source file")
     out_reg_file = File(argstr='--reg %s',
                         desc='output registration file',
-                        genfile=True)
+                        genfile=True, hash_files=False)
     spm_nifti = traits.Bool(argstr="--spm-nii",
                             desc="force use of nifti rather than analyze with SPM")
     epi_mask = traits.Bool(argstr="--epi-mask",
@@ -778,7 +778,7 @@ class ApplyVolTransformInputSpec(FSTraitedSpec):
     source_file = File(exists=True, argstr='--mov %s',
                       copyfile=False, mandatory=True,
                       desc='Input volume you wish to transform')
-    transformed_file = File(desc='Output volume', argstr='--o %s', genfile=True)
+    transformed_file = File(desc='Output volume', argstr='--o %s', genfile=True, hash_files=False)
     _targ_xor = ('target_file', 'tal', 'fs_target')
     target_file = File(exists=True, argstr='--targ %s', xor=_targ_xor,
                       desc='Output template volume', mandatory=True)
@@ -868,7 +868,7 @@ class SmoothInputSpec(FSTraitedSpec):
     reg_file = File(desc='registers volume to surface anatomical ',
                    argstr='--reg %s', mandatory=True,
                    exists=True)
-    smoothed_file = File(desc='output volume', argstr='--o %s', genfile=True)
+    smoothed_file = , hash_files=Falsedesc='output volume', argstr='--o %s', genfile=True)
     proj_frac_avg = traits.Tuple(traits.Float, traits.Float, traits.Float,
                                xor=['proj_frac'],
                               desc='average a long normal min max delta',
@@ -938,7 +938,7 @@ class RobustRegisterInputSpec(FSTraitedSpec):
     target_file = File(mandatory=True, argstr='--dst %s',
                        desc='target volume for the registration')
     out_reg_file = File(genfile=True, argstr='--lta %s',
-                        desc='registration file to write')
+                        desc='registration file to write', hash_files=False)
     registered_file = traits.Either(traits.Bool, File, argstr='--warp %s',
                       desc='registered image; either True or filename')
     weights_file = traits.Either(traits.Bool, File, argstr='--weights %s',
