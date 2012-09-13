@@ -131,10 +131,10 @@ class DTITrackerInputSpec(CommandLineInputSpec):
     swap_zx = traits.Bool(desc="swap x & z vectors while tracking", argstr = "-szx")
     mask1_file = File(desc="first mask image", mandatory=True, argstr="-m %s", position=2)
     mask1_threshold = traits.Float(desc="threshold value for the first mask image, if not given, the program will \
-        try automatically find the threshold", position=3)
+        try automatically find the threshold", argstr="%f", position=3)
     mask2_file = File(desc="second mask image", argstr="-m2 %s", position=4)
     mask2_threshold = traits.Float(desc="threshold value for the second mask image, if not given, the program will \
-        try automatically find the threshold", position=5)
+        try automatically find the threshold", argstr="%f", position=5)
     input_data_prefix = traits.Str("dti", desc="for internal naming use only", position=0, argstr="%s", usedefault=True)
     output_file = File("tracks.trk", "file containing tracks", argstr="%s", position=1, usedefault=True)
     output_mask = File(desc="output a binary mask file in analyze format", argstr="-om %s")
