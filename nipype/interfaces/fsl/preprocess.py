@@ -1348,3 +1348,71 @@ class FIRST(FSLCommand):
             bvars.append(op.abspath(bvar))
             return bvars
         return None
+
+class InvWarpInputSpec(FSLCommandInputSpec):
+    warp_file = File(exists=True, argstr='--warp=%s', mandatory=True,
+		    desc='filename for warp/shiftmap transform (volume)')
+    ref_file = File(exists=True, argstr='--ref=%s', mandatory=True,
+		    desc='name of reference image')
+    oldref_file = File(exists=True, argstr='--oldref=%s',
+		    desc='ilename of old reference image (default="standard" or MNI152_T1_2mm)')
+    initwarp_file = File(exists=True, argstr='--initwarp=%s',
+		       desc='filename for initial warp transform (volume)')
+    inverted_warp_file = File(argstr='--out=%s',
+		       desc='filename for output (inverse warped) image', genfile=True, hash_files=False)
+    force = traits.Bool(argstr="--force", desc="force process to run despite warnings")
+
+
+class InvWarpOutputSpec(TraitedSpec):
+    inverted_warp_file = File(desc='filename for output (inverse warped) image', exists=True)
+
+
+class InvWarp(FSLCommand):
+    """Use FSL FNIRT for non-linear registration.
+
+    Examples
+    --------
+    >>> from nipype.interfaces import fsl
+    >>> from nipype.testing import example_data
+    >>> fnt = fsl.FNIRT(affine_file=example_data('trans.mat'))
+    >>> res = fnt.run(ref_file=example_data('mni.nii', in_file=example_data('structural.nii')) #doctest: +SKIP
+
+    T1 -> Mni153
+
+    >>> from nipype.interfaces import fsl
+    >>> fnirt_mprage = fsl.FNIRT()
+    >>> fnirt_mprage.inputs.in_fwhm = [8, 4, 2, 2]
+    >>> fnirt_mprage.inputs.subsampling_scheme = [4, 2, 1, 1]
+
+    Specify the resolution of the warps
+
+    >>> fnirt_mprage.inputs.warp_resolution = (6, 6, 6)
+    >>> res = fnirt_mprage.run(in_file='structural.nii', ref_file='mni.nii', warped_file='warped.nii', fieldcoeff_file='fieldcoeff.nii')#doctest: +SKIP
+
+    We can check the command line and confirm that it's what we expect.
+
+    >>> fnirt_mprage.cmdline  #doctest: +SKIP
+    'fnirt --cout=fieldcoeff.nii --in=structural.nii --infwhm=8,4,2,2 --ref=mni.nii --subsamp=4,2,1,1 --warpres=6,6,6 --iout=warped.nii'
+
+    """
+
+    _cmd = 'invwarp'
+    input_spec = InvWarpInputSpec
+    output_spec = InvWarpOutputSpec
+
+    filemap = {'inverted_warp_file': 'inv'}
+
+    def _list_outputs(self):
+	outputs = self.output_spec().get()
+	inval = getattr(self.inputs, 'inverted_warp_file')
+	if isdefined(inval):
+	    outputs['inverted_warp_file'] = inval
+	else:
+	    outputs['inverted_warp_file'] = self._gen_fname(self.inputs.warp_file,
+							    suffix='_inv')
+	return outputs
+
+    def _gen_filename(self, name):
+	if name == 'inverted_warp_file':
+	    return self._list_outputs()[name]
+	return None
