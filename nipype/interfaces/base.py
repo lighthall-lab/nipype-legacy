@@ -1164,6 +1164,8 @@ class CommandLine(BaseInterface):
                 return sep.join([argstr % elt for elt in value])
             else:
                 return argstr % sep.join(str(elt) for elt in value)
+        elif trait_spec.is_trait_type(File):
+            return argstr % ('"%s"'%value)
         else:
             # Append options using format string.
             return argstr % value
