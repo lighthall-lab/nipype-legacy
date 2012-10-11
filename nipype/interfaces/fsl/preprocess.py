@@ -1393,7 +1393,7 @@ class InvWarp(FSLCommand):
         else:
             outputs['inverted_warp_file'] = self._gen_fname(self.inputs.warp_file,
                                                             suffix='_inv')
-            return outputs
+        return outputs
 
     def _gen_filename(self, name):
         if name == 'inverted_warp_file':
