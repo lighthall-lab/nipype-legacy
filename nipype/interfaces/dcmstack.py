@@ -1,7 +1,27 @@
 from nipype.interfaces.base import TraitedSpec, InputMultiPath, File, traits,\
     BaseInterface
-import numpy as np
+
 import os
+from nipype.utils.misc import package_check
+import warnings
+
+has_dcmstack = False
+has_dicom = False
+try:
+    package_check('dcmstack')
+except Exception, e:
+    warnings.warn('dcmstack not installed')
+else:
+    import dcmstack
+    has_dcmstack = True
+    
+try:
+    package_check('dicom')
+except Exception, e:
+    warnings.warn('pydicom not installed')
+else:
+    import dicom
+    has_dicom = True
 
 class DCMStackInputSpec(TraitedSpec):
     dicom_files = InputMultiPath(File(exists=True), mandatory=True)
@@ -15,7 +35,10 @@ class DCMStack(BaseInterface):
     output_spec = DCMStackOutputSpec
 
     def _run_interface(self, runtime):
-        import dcmstack, dicom
+        if not has_dcmstack:
+            raise RuntimeError("dcmstack not installed")
+        if not has_dicom:
+            raise RuntimeError("pydicom not installed")
         my_stack = dcmstack.DicomStack()
         for src_path in self.inputs.dicom_files:
             src_dcm = dicom.read_file(src_path)
