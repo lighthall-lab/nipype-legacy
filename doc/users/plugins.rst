@@ -72,6 +72,7 @@ a local system.
 Optional arguments::
 
   n_procs :  Number of processes to launch in parallel
+  non_daemon : boolean flag to execute as non-daemon processes (i.e. allowing to spawn more threads)
 
 To distribute processing on a multicore machine, simply call::
 
