@@ -26,6 +26,11 @@ def display_crash_files(crashfile, rerun):
         print "Node inputs:"
         print node.inputs
         print "\n"
+        if node.result and hasattr(node.result, 'runtime') and \
+            node.result.runtime:
+            print "Returncode:"
+            print node.result.runtime.returncode
+            print "\n"
     print "Traceback: "
     print ''.join(tb)
     print "\n"
