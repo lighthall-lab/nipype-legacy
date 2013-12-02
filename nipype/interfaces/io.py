@@ -27,6 +27,7 @@ import tempfile
 from warnings import warn
 
 import sqlite3
+import json
 
 try:
     import pyxnat
@@ -314,12 +315,46 @@ class DataSink(IOBase):
                     files = [item for sublist in files for item in sublist]
 
             for src in filename_to_list(files):
-                src = os.path.abspath(src)
-                if os.path.isfile(src):
-                    dst = self._get_dst(src)
-                    dst = os.path.join(tempoutdir, dst)
-                    dst = self._substitute(dst)
-                    path, _ = os.path.split(dst)
+                if isinstance(src, str) and os.path.exists(src):
+                    src = os.path.abspath(src)
+                    if os.path.isfile(src):
+                        dst = self._get_dst(src)
+                        dst = os.path.join(tempoutdir, dst)
+                        dst = self._substitute(dst)
+                        path, _ = os.path.split(dst)
+                        if not os.path.exists(path):
+                            try:
+                                os.makedirs(path)
+                            except OSError, inst:
+                                if 'File exists' in inst:
+                                    pass
+                                else:
+                                    raise(inst)
+                        iflogger.debug("copyfile: %s %s" % (src, dst))
+                        copyfile(src, dst, copy=True, hashmethod='content')
+                        out_files.append(dst)
+                    elif os.path.isdir(src):
+                        dst = self._get_dst(os.path.join(src, ''))
+                        dst = os.path.join(tempoutdir, dst)
+                        dst = self._substitute(dst)
+                        path, _ = os.path.split(dst)
+                        if not os.path.exists(path):
+                            try:
+                                os.makedirs(path)
+                            except OSError, inst:
+                                if 'File exists' in inst:
+                                    pass
+                                else:
+                                    raise(inst)
+                        if os.path.exists(dst) and self.inputs.remove_dest_dir:
+                            iflogger.debug("removing: %s" % dst)
+                            shutil.rmtree(dst)
+                        iflogger.debug("copydir: %s %s" % (src, dst))
+                        copytree(src, dst)
+                        out_files.append(dst)
+                else:
+                    dst = tempoutdir
+                    path, fname = os.path.split(dst)
                     if not os.path.exists(path):
                         try:
                             os.makedirs(path)
@@ -328,28 +363,10 @@ class DataSink(IOBase):
                                 pass
                             else:
                                 raise(inst)
-                    iflogger.debug("copyfile: %s %s" % (src, dst))
-                    copyfile(src, dst, copy=True, hashmethod='content')
-                    out_files.append(dst)
-                elif os.path.isdir(src):
-                    dst = self._get_dst(os.path.join(src, ''))
-                    dst = os.path.join(tempoutdir, dst)
-                    dst = self._substitute(dst)
-                    path, _ = os.path.split(dst)
-                    if not os.path.exists(path):
-                        try:
-                            os.makedirs(path)
-                        except OSError, inst:
-                            if 'File exists' in inst:
-                                pass
-                            else:
-                                raise(inst)
-                    if os.path.exists(dst) and self.inputs.remove_dest_dir:
-                        iflogger.debug("removing: %s" % dst)
-                        shutil.rmtree(dst)
-                    iflogger.debug("copydir: %s %s" % (src, dst))
-                    copytree(src, dst)
-                    out_files.append(dst)
+                    fp = open(os.path.join(path, fname + ".json"))
+                    json.dump(src, fp)
+                    fp.close()
+                    
         outputs['out_file'] = out_files
 
         return outputs

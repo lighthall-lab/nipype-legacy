@@ -165,6 +165,27 @@ def test_datasink_copydir():
     yield assert_false, file_exists()
     shutil.rmtree(outdir)
     shutil.rmtree(pth)
+    
+def test_datasink_json():
+    outdir = mkdtemp()
+    ds = nio.DataSink(base_directory=outdir, parameterization=False)
+    setattr(ds.inputs, '@variable', [1,2,3,4])
+    ds.run()
+    sep = os.path.sep
+    file_exists = lambda: os.path.exists(os.path.join(outdir,
+                                                      pth.split(sep)[-1],
+                                                      fname))
+    yield assert_true, file_exists()
+    shutil.rmtree(pth)
+
+    orig_img, orig_hdr = _temp_analyze_files()
+    pth, fname = os.path.split(orig_img)
+    ds.inputs.remove_dest_dir = True
+    setattr(ds.inputs, 'outdir', pth)
+    ds.run()
+    yield assert_false, file_exists()
+    shutil.rmtree(outdir)
+    shutil.rmtree(pth)
 
 
 def test_freesurfersource():
