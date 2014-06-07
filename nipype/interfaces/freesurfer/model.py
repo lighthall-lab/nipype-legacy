@@ -675,19 +675,16 @@ class SegStats(FSCommand):
 class Label2VolInputSpec(FSTraitedSpec):
     label_file = InputMultiPath(File(exists=True), argstr='--label %s...',
                    xor=('label_file', 'annot_file', 'seg_file', 'aparc_aseg'),
-                               copyfile=False,
                                mandatory=True,
                                desc='list of label files')
     annot_file = File(exists=True, argstr='--annot %s',
                      xor=('label_file', 'annot_file', 'seg_file', 'aparc_aseg'),
                      requires=('subject_id', 'hemi'),
                      mandatory=True,
-                     copyfile=False,
                      desc='surface annotation file')
     seg_file = File(exists=True, argstr='--seg %s',
                    xor=('label_file', 'annot_file', 'seg_file', 'aparc_aseg'),
                    mandatory=True,
-                   copyfile=False,
                    desc='segmentation file')
     aparc_aseg = traits.Bool(argstr='--aparc+aseg',
                             xor=('label_file', 'annot_file', 'seg_file', 'aparc_aseg'),
