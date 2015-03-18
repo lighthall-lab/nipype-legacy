@@ -22,6 +22,7 @@ def test_ExtractMainComponent_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ExtractMainComponent.input_spec()

@@ -26,6 +26,7 @@ def test_ExtractSkeleton_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     type=dict(argstr='--type %s',
     ),

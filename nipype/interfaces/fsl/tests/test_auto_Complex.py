@@ -87,6 +87,7 @@ def test_Complex_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Complex.input_spec()

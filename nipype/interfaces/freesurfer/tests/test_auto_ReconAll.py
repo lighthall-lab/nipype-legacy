@@ -35,6 +35,7 @@ def test_ReconAll_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ReconAll.input_spec()

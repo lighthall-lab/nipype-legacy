@@ -62,6 +62,7 @@ def test_BET_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold=dict(argstr='-t',
     ),

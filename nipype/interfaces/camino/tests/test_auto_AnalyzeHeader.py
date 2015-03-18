@@ -75,6 +75,7 @@ def test_AnalyzeHeader_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     voxel_dims=dict(argstr='-voxeldims %s',
     units='mm',

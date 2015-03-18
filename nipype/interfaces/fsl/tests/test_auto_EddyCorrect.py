@@ -29,6 +29,7 @@ def test_EddyCorrect_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = EddyCorrect.input_spec()

@@ -33,6 +33,7 @@ def test_Shredder_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Shredder.input_spec()

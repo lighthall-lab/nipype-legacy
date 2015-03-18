@@ -26,6 +26,7 @@ def test_JistBrainMp2rageDuraEstimation_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     xDefaultMem=dict(argstr='-xDefaultMem %d',
     ),

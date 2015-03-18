@@ -30,6 +30,7 @@ def test_DWIToDTIEstimation_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DWIToDTIEstimation.input_spec()

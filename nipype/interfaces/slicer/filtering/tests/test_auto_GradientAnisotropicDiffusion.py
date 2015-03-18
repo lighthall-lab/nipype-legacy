@@ -24,6 +24,7 @@ def test_GradientAnisotropicDiffusion_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     timeStep=dict(argstr='--timeStep %f',
     ),

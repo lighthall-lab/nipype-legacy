@@ -26,6 +26,7 @@ def test_C3dAffineTool_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transform_file=dict(argstr='%s',
     position=3,

@@ -39,6 +39,7 @@ def test_MultiResolutionAffineRegistration_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MultiResolutionAffineRegistration.input_spec()

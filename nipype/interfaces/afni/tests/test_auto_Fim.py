@@ -33,6 +33,7 @@ def test_Fim_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Fim.input_spec()

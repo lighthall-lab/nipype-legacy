@@ -79,6 +79,7 @@ def test_MeshFix_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     uniform_remeshing_steps=dict(argstr='-u %d',
     requires=['uniform_remeshing_vertices'],

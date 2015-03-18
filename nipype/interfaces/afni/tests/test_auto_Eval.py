@@ -41,6 +41,7 @@ def test_Eval_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Eval.input_spec()

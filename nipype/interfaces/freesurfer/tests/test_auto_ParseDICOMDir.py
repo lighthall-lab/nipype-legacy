@@ -24,6 +24,7 @@ def test_ParseDICOMDir_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ParseDICOMDir.input_spec()

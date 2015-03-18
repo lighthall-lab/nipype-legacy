@@ -61,6 +61,7 @@ def test_Cluster_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold=dict(argstr='--thresh=%.10f',
     mandatory=True,

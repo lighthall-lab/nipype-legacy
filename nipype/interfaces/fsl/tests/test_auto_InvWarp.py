@@ -38,6 +38,7 @@ def test_InvWarp_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warp=dict(argstr='--warp=%s',
     mandatory=True,

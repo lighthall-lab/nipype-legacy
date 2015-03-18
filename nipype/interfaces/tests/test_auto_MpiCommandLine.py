@@ -14,6 +14,7 @@ def test_MpiCommandLine_inputs():
     n_procs=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     use_mpi=dict(usedefault=True,
     ),

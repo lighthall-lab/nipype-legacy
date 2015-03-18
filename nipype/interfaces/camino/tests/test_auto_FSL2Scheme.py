@@ -42,6 +42,7 @@ def test_FSL2Scheme_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     usegradmod=dict(argstr='-usegradmod',
     ),

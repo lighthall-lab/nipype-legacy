@@ -48,6 +48,7 @@ def test_ConstrainedSphericalDeconvolution_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold_value=dict(argstr='-threshold %s',
     ),

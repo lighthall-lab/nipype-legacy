@@ -76,6 +76,7 @@ def test_FUGUE_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     unwarp_direction=dict(argstr='--unwarpdir=%s',
     ),

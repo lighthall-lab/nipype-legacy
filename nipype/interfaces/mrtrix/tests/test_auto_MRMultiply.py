@@ -27,6 +27,7 @@ def test_MRMultiply_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MRMultiply.input_spec()

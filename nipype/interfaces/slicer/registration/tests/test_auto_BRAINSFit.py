@@ -125,6 +125,7 @@ def test_BRAINSFit_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transformType=dict(argstr='--transformType %s',
     sep=',',

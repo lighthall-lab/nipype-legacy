@@ -28,6 +28,7 @@ def test_Merge_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tr=dict(argstr='%.2f',
     position=-1,

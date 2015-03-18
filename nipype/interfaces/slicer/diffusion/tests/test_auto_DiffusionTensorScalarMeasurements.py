@@ -22,6 +22,7 @@ def test_DiffusionTensorScalarMeasurements_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DiffusionTensorScalarMeasurements.input_spec()

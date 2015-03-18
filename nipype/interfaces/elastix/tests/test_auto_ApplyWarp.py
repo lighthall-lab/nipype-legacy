@@ -22,6 +22,7 @@ def test_ApplyWarp_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transform_file=dict(argstr='-tp %s',
     mandatory=True,

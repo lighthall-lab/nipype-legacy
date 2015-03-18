@@ -40,6 +40,7 @@ def test_BlurInMask_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = BlurInMask.input_spec()

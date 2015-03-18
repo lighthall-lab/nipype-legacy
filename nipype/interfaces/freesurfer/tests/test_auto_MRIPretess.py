@@ -35,6 +35,7 @@ def test_MRIPretess_inputs():
     subjects_dir=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     test=dict(argstr='-test',
     ),

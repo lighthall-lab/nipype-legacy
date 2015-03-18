@@ -42,6 +42,7 @@ def test_IsotropicSmooth_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = IsotropicSmooth.input_spec()

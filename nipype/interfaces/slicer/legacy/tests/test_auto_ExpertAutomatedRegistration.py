@@ -71,6 +71,7 @@ def test_ExpertAutomatedRegistration_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     verbosityLevel=dict(argstr='--verbosityLevel %s',
     ),

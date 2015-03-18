@@ -36,6 +36,7 @@ def test_SynthesizeFLASH_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tr=dict(argstr='%.2f',
     mandatory=True,

@@ -24,6 +24,7 @@ def test_VtoMat_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = VtoMat.input_spec()

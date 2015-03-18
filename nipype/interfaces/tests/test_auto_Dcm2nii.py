@@ -68,6 +68,7 @@ def test_Dcm2nii_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Dcm2nii.input_spec()

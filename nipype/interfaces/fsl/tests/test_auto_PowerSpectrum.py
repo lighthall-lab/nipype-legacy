@@ -23,6 +23,7 @@ def test_PowerSpectrum_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = PowerSpectrum.input_spec()

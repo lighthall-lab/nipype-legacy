@@ -85,6 +85,7 @@ def test_Allineate_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     two_best=dict(argstr='-twobest %d',
     ),

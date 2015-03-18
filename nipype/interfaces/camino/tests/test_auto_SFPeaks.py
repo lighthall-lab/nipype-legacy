@@ -54,6 +54,7 @@ def test_SFPeaks_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = SFPeaks.input_spec()

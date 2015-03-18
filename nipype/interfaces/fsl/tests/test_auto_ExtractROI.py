@@ -33,6 +33,7 @@ def test_ExtractROI_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     x_min=dict(argstr='%d',
     position=2,

@@ -40,6 +40,7 @@ def test_DWI2Tensor_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DWI2Tensor.input_spec()

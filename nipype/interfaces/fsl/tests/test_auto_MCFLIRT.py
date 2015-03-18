@@ -54,6 +54,7 @@ def test_MCFLIRT_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     use_contour=dict(argstr='-edge',
     ),

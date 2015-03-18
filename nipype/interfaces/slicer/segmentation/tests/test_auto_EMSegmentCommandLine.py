@@ -56,6 +56,7 @@ def test_EMSegmentCommandLine_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     verbose=dict(argstr='--verbose ',
     ),

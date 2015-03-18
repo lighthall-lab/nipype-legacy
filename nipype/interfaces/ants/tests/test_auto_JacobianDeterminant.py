@@ -36,6 +36,7 @@ def test_JacobianDeterminant_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     use_log=dict(argstr='%d',
     position=3,

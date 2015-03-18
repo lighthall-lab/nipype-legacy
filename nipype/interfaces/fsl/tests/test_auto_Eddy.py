@@ -55,6 +55,7 @@ def test_Eddy_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Eddy.input_spec()

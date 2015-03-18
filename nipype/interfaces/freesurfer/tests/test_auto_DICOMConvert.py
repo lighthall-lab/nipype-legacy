@@ -29,6 +29,7 @@ def test_DICOMConvert_inputs():
     subjects_dir=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DICOMConvert.input_spec()

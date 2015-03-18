@@ -29,6 +29,7 @@ def test_MakeDyadicVectors_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     theta_vol=dict(argstr='%s',
     mandatory=True,

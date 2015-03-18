@@ -38,6 +38,7 @@ def test_PrepareFieldmap_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = PrepareFieldmap.input_spec()

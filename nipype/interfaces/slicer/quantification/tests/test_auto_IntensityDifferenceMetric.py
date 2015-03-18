@@ -33,6 +33,7 @@ def test_IntensityDifferenceMetric_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = IntensityDifferenceMetric.input_spec()

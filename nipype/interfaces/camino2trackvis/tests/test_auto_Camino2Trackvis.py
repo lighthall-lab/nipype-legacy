@@ -33,6 +33,7 @@ def test_Camino2Trackvis_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     voxel_dims=dict(argstr='-x %s',
     mandatory=True,

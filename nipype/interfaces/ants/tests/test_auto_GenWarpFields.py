@@ -44,6 +44,7 @@ def test_GenWarpFields_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transformation_model=dict(argstr='-t %s',
     usedefault=True,

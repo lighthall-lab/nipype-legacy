@@ -32,6 +32,7 @@ def test_To3D_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = To3D.input_spec()

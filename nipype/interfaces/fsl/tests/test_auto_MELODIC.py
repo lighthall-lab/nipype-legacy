@@ -100,6 +100,7 @@ def test_MELODIC_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tr_sec=dict(argstr='--tr=%f',
     ),

@@ -40,6 +40,7 @@ def test_TemporalFilter_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = TemporalFilter.input_spec()

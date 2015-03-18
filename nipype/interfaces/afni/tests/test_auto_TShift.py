@@ -31,6 +31,7 @@ def test_TShift_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tpattern=dict(argstr='-tpattern %s',
     ),

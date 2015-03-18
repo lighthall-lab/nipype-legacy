@@ -27,6 +27,7 @@ def test_MedianFilter3D_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MedianFilter3D.input_spec()

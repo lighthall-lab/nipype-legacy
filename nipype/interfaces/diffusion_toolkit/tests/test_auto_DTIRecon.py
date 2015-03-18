@@ -37,6 +37,7 @@ def test_DTIRecon_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DTIRecon.input_spec()

@@ -31,6 +31,7 @@ def test_BRAINSROIAuto_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     thresholdCorrectionFactor=dict(argstr='--thresholdCorrectionFactor %f',
     ),

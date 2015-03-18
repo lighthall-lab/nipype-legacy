@@ -27,6 +27,7 @@ def test_HistogramMatching_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold=dict(argstr='--threshold ',
     ),

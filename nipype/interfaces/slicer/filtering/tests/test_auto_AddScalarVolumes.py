@@ -25,6 +25,7 @@ def test_AddScalarVolumes_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = AddScalarVolumes.input_spec()

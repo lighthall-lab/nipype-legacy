@@ -24,6 +24,7 @@ def test_FiducialRegistration_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transformType=dict(argstr='--transformType %s',
     ),

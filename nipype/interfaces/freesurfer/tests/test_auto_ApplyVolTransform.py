@@ -63,6 +63,7 @@ def test_ApplyVolTransform_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transformed_file=dict(argstr='--o %s',
     genfile=True,

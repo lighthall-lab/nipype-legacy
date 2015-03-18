@@ -17,6 +17,7 @@ def test_StdOutCommandLine_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = StdOutCommandLine.input_spec()

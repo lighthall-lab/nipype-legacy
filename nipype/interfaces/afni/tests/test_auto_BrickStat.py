@@ -28,6 +28,7 @@ def test_BrickStat_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = BrickStat.input_spec()

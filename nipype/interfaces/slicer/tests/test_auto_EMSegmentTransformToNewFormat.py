@@ -20,6 +20,7 @@ def test_EMSegmentTransformToNewFormat_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = EMSegmentTransformToNewFormat.input_spec()

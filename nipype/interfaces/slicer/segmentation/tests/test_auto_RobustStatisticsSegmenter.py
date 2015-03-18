@@ -33,6 +33,7 @@ def test_RobustStatisticsSegmenter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = RobustStatisticsSegmenter.input_spec()

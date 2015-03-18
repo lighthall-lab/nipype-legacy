@@ -24,6 +24,7 @@ def test_FitMSParams_inputs():
     te_list=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tr_list=dict(),
     xfm_list=dict(),

@@ -62,6 +62,7 @@ def test_antsCorticalThickness_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     use_floatingpoint_precision=dict(argstr='-j %d',
     ),

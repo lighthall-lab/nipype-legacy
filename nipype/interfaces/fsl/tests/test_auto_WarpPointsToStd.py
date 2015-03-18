@@ -35,6 +35,7 @@ def test_WarpPointsToStd_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warp_file=dict(argstr='-warp %s',
     xor=['xfm_file'],

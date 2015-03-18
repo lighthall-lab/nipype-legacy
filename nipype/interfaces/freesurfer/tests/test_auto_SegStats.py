@@ -81,6 +81,7 @@ def test_SegStats_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     vox=dict(argstr='--vox %s',
     ),

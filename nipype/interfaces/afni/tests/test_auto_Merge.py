@@ -28,6 +28,7 @@ def test_Merge_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Merge.input_spec()

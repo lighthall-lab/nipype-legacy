@@ -25,6 +25,7 @@ def test_ImageLabelCombine_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ImageLabelCombine.input_spec()

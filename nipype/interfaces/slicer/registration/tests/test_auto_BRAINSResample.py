@@ -35,6 +35,7 @@ def test_BRAINSResample_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warpTransform=dict(argstr='--warpTransform %s',
     ),

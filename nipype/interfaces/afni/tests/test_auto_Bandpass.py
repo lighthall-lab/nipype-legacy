@@ -56,6 +56,7 @@ def test_Bandpass_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tr=dict(argstr='-dt %f',
     ),

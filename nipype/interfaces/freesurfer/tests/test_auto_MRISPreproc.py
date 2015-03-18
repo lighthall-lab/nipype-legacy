@@ -61,6 +61,7 @@ def test_MRISPreproc_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     vol_measure_file=dict(argstr='--iv %s %s...',
     ),

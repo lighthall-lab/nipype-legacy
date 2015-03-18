@@ -14,6 +14,7 @@ def test_FSCommand_inputs():
     subjects_dir=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = FSCommand.input_spec()

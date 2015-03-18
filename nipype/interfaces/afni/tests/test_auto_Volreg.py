@@ -44,6 +44,7 @@ def test_Volreg_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     timeshift=dict(argstr='-tshift 0',
     ),

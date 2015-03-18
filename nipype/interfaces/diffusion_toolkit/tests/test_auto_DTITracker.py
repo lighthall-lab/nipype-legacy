@@ -59,6 +59,7 @@ def test_DTITracker_inputs():
     tensor_file=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tracking_method=dict(argstr='-%s',
     ),

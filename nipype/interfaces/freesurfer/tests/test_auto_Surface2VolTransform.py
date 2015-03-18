@@ -37,6 +37,7 @@ def test_Surface2VolTransform_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transformed_file=dict(argstr='--outvol %s',
     hash_files=False,

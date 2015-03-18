@@ -36,6 +36,7 @@ def test_ApplyMask_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ApplyMask.input_spec()

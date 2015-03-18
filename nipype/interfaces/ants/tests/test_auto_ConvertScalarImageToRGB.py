@@ -58,6 +58,7 @@ def test_ConvertScalarImageToRGB_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ConvertScalarImageToRGB.input_spec()

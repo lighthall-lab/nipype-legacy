@@ -39,6 +39,7 @@ def test_CreateTiledMosaic_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tile_geometry=dict(argstr='-t %s',
     ),

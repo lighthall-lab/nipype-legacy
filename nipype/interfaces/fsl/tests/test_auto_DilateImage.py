@@ -47,6 +47,7 @@ def test_DilateImage_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DilateImage.input_spec()

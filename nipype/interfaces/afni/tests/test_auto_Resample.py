@@ -29,6 +29,7 @@ def test_Resample_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     voxel_size=dict(argstr='-dxyz %f %f %f',
     ),

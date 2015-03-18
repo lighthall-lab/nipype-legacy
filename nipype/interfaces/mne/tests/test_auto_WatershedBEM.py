@@ -24,6 +24,7 @@ def test_WatershedBEM_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     volume=dict(argstr='--volume %s',
     usedefault=True,

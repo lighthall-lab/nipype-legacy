@@ -66,6 +66,7 @@ def test_ANTS_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transformation_model=dict(argstr='%s',
     mandatory=True,

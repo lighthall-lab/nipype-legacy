@@ -39,6 +39,7 @@ def test_VtkStreamlines_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     voxeldims=dict(argstr='-voxeldims %s',
     position=4,

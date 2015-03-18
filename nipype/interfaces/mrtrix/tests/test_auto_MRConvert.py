@@ -51,6 +51,7 @@ def test_MRConvert_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     voxel_dims=dict(argstr='-vox %s',
     position=3,

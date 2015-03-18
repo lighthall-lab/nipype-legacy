@@ -25,6 +25,7 @@ def test_Image2Voxel_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Image2Voxel.input_spec()

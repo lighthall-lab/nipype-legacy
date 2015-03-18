@@ -89,6 +89,7 @@ def test_SurfaceSnapshots_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     truncate_overlay=dict(argstr='-truncphaseflag 1',
     ),

@@ -50,6 +50,7 @@ def test_MRIsConvert_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     vertex=dict(argstr='-v',
     ),

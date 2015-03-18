@@ -40,6 +40,7 @@ def test_WarpImageMultiTransform_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tightest_box=dict(argstr='--tightest-bounding-box',
     xor=['reference_image'],

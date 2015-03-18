@@ -33,6 +33,7 @@ def test_ChangeDataType_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ChangeDataType.input_spec()

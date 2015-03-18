@@ -34,6 +34,7 @@ def test_SliceTimer_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     time_repetition=dict(argstr='--repeat=%f',
     ),

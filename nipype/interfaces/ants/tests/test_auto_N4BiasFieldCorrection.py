@@ -45,6 +45,7 @@ def test_N4BiasFieldCorrection_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     weight_image=dict(argstr='--weight-image %s',
     ),

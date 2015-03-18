@@ -38,6 +38,7 @@ def test_Smooth_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     vol_fwhm=dict(argstr='--vol-fwhm %f',
     ),

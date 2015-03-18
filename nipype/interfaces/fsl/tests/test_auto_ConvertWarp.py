@@ -53,6 +53,7 @@ def test_ConvertWarp_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warp1=dict(argstr='--warp1=%s',
     ),

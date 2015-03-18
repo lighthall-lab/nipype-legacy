@@ -35,6 +35,7 @@ def test_TCorr1D_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     xset=dict(argstr=' %s',
     copyfile=False,

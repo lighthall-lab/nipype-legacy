@@ -94,6 +94,7 @@ def test_StreamlineTrack_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     unidirectional=dict(argstr='-unidirectional',
     ),

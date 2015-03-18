@@ -43,6 +43,7 @@ def test_FindShPeaks_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = FindShPeaks.input_spec()

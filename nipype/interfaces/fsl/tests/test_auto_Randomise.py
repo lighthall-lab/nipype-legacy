@@ -58,6 +58,7 @@ def test_Randomise_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tfce=dict(argstr='-T',
     ),

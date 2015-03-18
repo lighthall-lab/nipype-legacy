@@ -32,6 +32,7 @@ def test_MathsCommand_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MathsCommand.input_spec()

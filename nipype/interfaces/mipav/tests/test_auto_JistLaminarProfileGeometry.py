@@ -28,6 +28,7 @@ def test_JistLaminarProfileGeometry_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     xDefaultMem=dict(argstr='-xDefaultMem %d',
     ),

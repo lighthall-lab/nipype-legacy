@@ -89,6 +89,7 @@ def test_ProcStreamlines_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     truncateinexclusion=dict(argstr='-truncateinexclusion',
     ),

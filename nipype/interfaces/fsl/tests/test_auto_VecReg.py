@@ -36,6 +36,7 @@ def test_VecReg_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warp_field=dict(argstr='-w %s',
     ),

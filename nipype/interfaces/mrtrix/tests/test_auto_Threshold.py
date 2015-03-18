@@ -37,6 +37,7 @@ def test_Threshold_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Threshold.input_spec()

@@ -22,6 +22,7 @@ def test_ACPCTransform_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ACPCTransform.input_spec()

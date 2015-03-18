@@ -58,6 +58,7 @@ def test_FAST_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     use_priors=dict(argstr='-P',
     ),

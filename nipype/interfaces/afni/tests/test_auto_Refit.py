@@ -20,6 +20,7 @@ def test_Refit_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     xorigin=dict(argstr='-xorigin %s',
     ),

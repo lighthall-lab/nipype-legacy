@@ -17,6 +17,7 @@ def test_MRTrixInfo_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MRTrixInfo.input_spec()

@@ -25,6 +25,7 @@ def test_SwapDimensions_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = SwapDimensions.input_spec()

@@ -67,6 +67,7 @@ def test_Label2Vol_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     vol_label_file=dict(argstr='--o %s',
     genfile=True,

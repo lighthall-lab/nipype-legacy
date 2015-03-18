@@ -39,6 +39,7 @@ def test_PlotTimeSeries_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     title=dict(argstr='%s',
     ),

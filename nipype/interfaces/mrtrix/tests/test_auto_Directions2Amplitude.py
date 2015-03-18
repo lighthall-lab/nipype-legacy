@@ -37,6 +37,7 @@ def test_Directions2Amplitude_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Directions2Amplitude.input_spec()

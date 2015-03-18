@@ -30,6 +30,7 @@ def test_DTMetric_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DTMetric.input_spec()

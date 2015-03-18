@@ -32,6 +32,7 @@ def test_SimpleRegionGrowingSegmentation_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     timestep=dict(argstr='--timestep %f',
     ),

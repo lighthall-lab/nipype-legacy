@@ -33,6 +33,7 @@ def test_GenerateDirections_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = GenerateDirections.input_spec()

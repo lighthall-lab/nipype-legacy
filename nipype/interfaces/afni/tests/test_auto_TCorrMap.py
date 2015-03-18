@@ -84,6 +84,7 @@ def test_TCorrMap_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     thresholds=dict(),
     var_absolute_threshold=dict(argstr='-VarThresh %f %f %f %s',

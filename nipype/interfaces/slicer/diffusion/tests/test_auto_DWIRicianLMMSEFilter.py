@@ -40,6 +40,7 @@ def test_DWIRicianLMMSEFilter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     uav=dict(argstr='--uav ',
     ),

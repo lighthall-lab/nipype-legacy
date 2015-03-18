@@ -33,6 +33,7 @@ def test_ImageMaths_inputs():
     suffix=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ImageMaths.input_spec()

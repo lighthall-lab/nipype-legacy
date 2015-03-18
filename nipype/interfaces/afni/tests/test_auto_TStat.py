@@ -27,6 +27,7 @@ def test_TStat_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = TStat.input_spec()

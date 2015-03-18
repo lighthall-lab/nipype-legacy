@@ -97,6 +97,7 @@ def test_BRAINSDemonWarp_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     upFieldSmoothing=dict(argstr='--upFieldSmoothing %f',
     ),

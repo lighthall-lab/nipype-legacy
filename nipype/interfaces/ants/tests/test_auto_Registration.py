@@ -86,6 +86,7 @@ def test_Registration_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transform_parameters=dict(),
     transforms=dict(argstr='%s',

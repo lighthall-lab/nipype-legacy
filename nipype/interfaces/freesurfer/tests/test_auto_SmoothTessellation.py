@@ -46,6 +46,7 @@ def test_SmoothTessellation_inputs():
     subjects_dir=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     use_gaussian_curvature_smoothing=dict(argstr='-g',
     position=3,

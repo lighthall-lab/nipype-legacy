@@ -33,6 +33,7 @@ def test_Automask_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Automask.input_spec()

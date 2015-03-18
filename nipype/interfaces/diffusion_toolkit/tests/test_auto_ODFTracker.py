@@ -69,6 +69,7 @@ def test_ODFTracker_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     voxel_order=dict(argstr='-vorder %s',
     ),

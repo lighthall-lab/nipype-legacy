@@ -167,6 +167,7 @@ def test_MRIConvert_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     unwarp_gradient=dict(argstr='--unwarp_gradient_nonlinearity',
     ),

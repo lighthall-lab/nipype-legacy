@@ -23,6 +23,7 @@ def test_ProbeVolumeWithModel_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ProbeVolumeWithModel.input_spec()

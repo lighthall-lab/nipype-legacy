@@ -41,6 +41,7 @@ def test_ApplyTransforms_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transforms=dict(argstr='%s',
     mandatory=True,

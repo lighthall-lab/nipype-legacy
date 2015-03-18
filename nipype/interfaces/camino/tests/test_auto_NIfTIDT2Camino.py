@@ -31,6 +31,7 @@ def test_NIfTIDT2Camino_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     uppertriangular=dict(argstr='-uppertriangular %s',
     ),

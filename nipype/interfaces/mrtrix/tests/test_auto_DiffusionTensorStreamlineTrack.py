@@ -98,6 +98,7 @@ def test_DiffusionTensorStreamlineTrack_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     unidirectional=dict(argstr='-unidirectional',
     ),

@@ -45,6 +45,7 @@ def test_DTLUTGen_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     trace=dict(argstr='-trace %G',
     units='NA',

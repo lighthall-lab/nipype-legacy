@@ -32,6 +32,7 @@ def test_Erode_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Erode.input_spec()

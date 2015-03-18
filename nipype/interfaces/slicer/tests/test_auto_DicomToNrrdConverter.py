@@ -22,6 +22,7 @@ def test_DicomToNrrdConverter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     useBMatrixGradientDirections=dict(argstr='--useBMatrixGradientDirections ',
     ),

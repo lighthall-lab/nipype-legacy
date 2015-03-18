@@ -130,6 +130,7 @@ def test_ApplyXfm_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     uses_qform=dict(argstr='-usesqform',
     ),

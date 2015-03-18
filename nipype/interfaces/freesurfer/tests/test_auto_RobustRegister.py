@@ -73,6 +73,7 @@ def test_RobustRegister_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     trans_only=dict(argstr='--transonly',
     ),

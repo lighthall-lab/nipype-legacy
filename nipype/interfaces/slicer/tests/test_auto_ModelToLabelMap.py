@@ -25,6 +25,7 @@ def test_ModelToLabelMap_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ModelToLabelMap.input_spec()

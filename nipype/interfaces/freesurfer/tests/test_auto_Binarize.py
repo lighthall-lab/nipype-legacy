@@ -61,6 +61,7 @@ def test_Binarize_inputs():
     subjects_dir=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     ventricles=dict(argstr='--ventricles',
     ),

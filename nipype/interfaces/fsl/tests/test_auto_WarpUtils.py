@@ -31,6 +31,7 @@ def test_WarpUtils_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warp_resolution=dict(argstr='--warpres=%0.4f,%0.4f,%0.4f',
     ),

@@ -13,6 +13,7 @@ def test_SEMLikeCommandLine_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = SEMLikeCommandLine.input_spec()

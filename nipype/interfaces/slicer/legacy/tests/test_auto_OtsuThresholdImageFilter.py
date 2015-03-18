@@ -26,6 +26,7 @@ def test_OtsuThresholdImageFilter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = OtsuThresholdImageFilter.input_spec()

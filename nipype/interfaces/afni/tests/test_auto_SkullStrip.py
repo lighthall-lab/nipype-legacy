@@ -23,6 +23,7 @@ def test_SkullStrip_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = SkullStrip.input_spec()

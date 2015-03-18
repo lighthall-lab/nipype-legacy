@@ -25,6 +25,7 @@ def test_SubtractScalarVolumes_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = SubtractScalarVolumes.input_spec()

@@ -73,6 +73,7 @@ def test_XFibres5_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     update_proposal_every=dict(argstr='--updateproposalevery=%d',
     ),

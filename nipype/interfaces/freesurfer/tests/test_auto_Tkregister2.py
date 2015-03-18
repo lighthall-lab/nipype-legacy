@@ -43,6 +43,7 @@ def test_Tkregister2_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     xfm=dict(argstr='--xfm %s',
     ),

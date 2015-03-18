@@ -37,6 +37,7 @@ def test_SFPICOCalibData_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     trace=dict(argstr='-trace %f',
     units='NA',

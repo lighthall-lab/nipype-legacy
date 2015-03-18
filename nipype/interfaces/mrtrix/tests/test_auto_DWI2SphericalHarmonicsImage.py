@@ -30,6 +30,7 @@ def test_DWI2SphericalHarmonicsImage_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DWI2SphericalHarmonicsImage.input_spec()

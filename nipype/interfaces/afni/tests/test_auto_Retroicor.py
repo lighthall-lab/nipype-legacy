@@ -40,6 +40,7 @@ def test_Retroicor_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold=dict(argstr='-threshold %d',
     position=-4,

@@ -33,6 +33,7 @@ def test_MultiplyImages_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MultiplyImages.input_spec()

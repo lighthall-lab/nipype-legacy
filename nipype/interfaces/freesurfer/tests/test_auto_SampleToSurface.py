@@ -100,6 +100,7 @@ def test_SampleToSurface_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     vox_file=dict(argstr='--nvox %s',
     ),

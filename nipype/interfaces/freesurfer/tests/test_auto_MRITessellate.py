@@ -26,6 +26,7 @@ def test_MRITessellate_inputs():
     subjects_dir=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tesselate_all_voxels=dict(argstr='-a',
     ),

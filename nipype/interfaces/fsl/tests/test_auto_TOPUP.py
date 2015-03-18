@@ -80,6 +80,7 @@ def test_TOPUP_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warp_res=dict(argstr='--warpres=%f',
     ),

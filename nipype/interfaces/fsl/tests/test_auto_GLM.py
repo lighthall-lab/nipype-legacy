@@ -62,6 +62,7 @@ def test_GLM_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     var_norm=dict(argstr='--vn',
     ),

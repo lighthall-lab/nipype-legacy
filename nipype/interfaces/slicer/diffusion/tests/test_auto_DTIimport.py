@@ -20,6 +20,7 @@ def test_DTIimport_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     testingmode=dict(argstr='--testingmode ',
     ),

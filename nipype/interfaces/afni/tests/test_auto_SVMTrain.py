@@ -47,6 +47,7 @@ def test_SVMTrain_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     trainlabels=dict(argstr='-trainlabels %s',
     ),

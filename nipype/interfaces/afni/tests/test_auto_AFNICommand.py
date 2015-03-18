@@ -18,6 +18,7 @@ def test_AFNICommand_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = AFNICommand.input_spec()

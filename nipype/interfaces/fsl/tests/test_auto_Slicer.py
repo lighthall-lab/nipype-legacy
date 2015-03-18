@@ -74,6 +74,7 @@ def test_Slicer_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold_edges=dict(argstr='-e %.3f',
     position=6,

@@ -40,6 +40,7 @@ def test_N4ITKBiasFieldCorrection_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     weightimage=dict(argstr='--weightimage %s',
     ),

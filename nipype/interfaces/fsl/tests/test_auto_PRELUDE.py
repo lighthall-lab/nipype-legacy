@@ -53,6 +53,7 @@ def test_PRELUDE_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold=dict(argstr='--thresh=%.10f',
     ),

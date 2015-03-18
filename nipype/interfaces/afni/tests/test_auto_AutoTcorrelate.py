@@ -35,6 +35,7 @@ def test_AutoTcorrelate_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = AutoTcorrelate.input_spec()

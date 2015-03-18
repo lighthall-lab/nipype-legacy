@@ -18,6 +18,7 @@ def test_BSplineToDeformationField_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tfm=dict(argstr='--tfm %s',
     ),

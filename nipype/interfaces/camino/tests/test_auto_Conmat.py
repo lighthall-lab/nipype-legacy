@@ -27,6 +27,7 @@ def test_Conmat_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tract_prop=dict(argstr='-tractstat %s',
     units='NA',

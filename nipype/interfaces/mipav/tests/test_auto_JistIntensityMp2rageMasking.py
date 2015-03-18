@@ -39,6 +39,7 @@ def test_JistIntensityMp2rageMasking_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     xDefaultMem=dict(argstr='-xDefaultMem %d',
     ),

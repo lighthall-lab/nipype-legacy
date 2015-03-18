@@ -46,6 +46,7 @@ def test_BinaryMaths_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = BinaryMaths.input_spec()

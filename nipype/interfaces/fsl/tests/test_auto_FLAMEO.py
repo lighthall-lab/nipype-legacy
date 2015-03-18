@@ -55,6 +55,7 @@ def test_FLAMEO_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     var_cope_file=dict(argstr='--varcopefile=%s',
     ),

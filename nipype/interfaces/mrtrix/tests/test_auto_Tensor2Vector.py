@@ -27,6 +27,7 @@ def test_Tensor2Vector_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Tensor2Vector.input_spec()

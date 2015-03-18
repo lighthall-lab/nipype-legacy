@@ -35,6 +35,7 @@ def test_QBallMX_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = QBallMX.input_spec()

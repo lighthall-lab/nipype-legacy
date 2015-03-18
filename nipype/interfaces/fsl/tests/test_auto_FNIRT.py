@@ -114,6 +114,7 @@ def test_FNIRT_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     warp_resolution=dict(argstr='--warpres=%d,%d,%d',
     ),

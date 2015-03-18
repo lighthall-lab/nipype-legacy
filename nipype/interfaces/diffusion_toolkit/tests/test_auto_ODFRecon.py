@@ -52,6 +52,7 @@ def test_ODFRecon_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ODFRecon.input_spec()

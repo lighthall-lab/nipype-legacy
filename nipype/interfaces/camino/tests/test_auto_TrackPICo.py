@@ -65,6 +65,7 @@ def test_TrackPICo_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tracker=dict(argstr='-tracker %s',
     usedefault=True,

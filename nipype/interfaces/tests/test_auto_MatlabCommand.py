@@ -39,6 +39,7 @@ def test_MatlabCommand_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     uses_mcr=dict(nohash=True,
     xor=['nodesktop', 'nosplash', 'single_comp_thread'],

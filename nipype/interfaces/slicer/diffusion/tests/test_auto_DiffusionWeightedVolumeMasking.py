@@ -24,6 +24,7 @@ def test_DiffusionWeightedVolumeMasking_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     thresholdMask=dict(argstr='%s',
     hash_files=False,

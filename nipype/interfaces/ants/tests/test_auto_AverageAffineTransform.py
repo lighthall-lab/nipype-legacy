@@ -25,6 +25,7 @@ def test_AverageAffineTransform_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transforms=dict(argstr='%s',
     mandatory=True,

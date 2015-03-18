@@ -27,6 +27,7 @@ def test_ImageStats_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ImageStats.input_spec()

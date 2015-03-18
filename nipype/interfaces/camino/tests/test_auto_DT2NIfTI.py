@@ -25,6 +25,7 @@ def test_DT2NIfTI_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DT2NIfTI.input_spec()

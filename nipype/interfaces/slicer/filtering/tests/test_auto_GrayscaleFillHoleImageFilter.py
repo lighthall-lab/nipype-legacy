@@ -20,6 +20,7 @@ def test_GrayscaleFillHoleImageFilter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = GrayscaleFillHoleImageFilter.input_spec()

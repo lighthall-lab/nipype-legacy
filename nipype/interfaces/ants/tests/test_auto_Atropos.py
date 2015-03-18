@@ -58,6 +58,7 @@ def test_Atropos_inputs():
     save_posteriors=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     use_mixture_model_proportions=dict(requires=['posterior_formulation'],
     ),

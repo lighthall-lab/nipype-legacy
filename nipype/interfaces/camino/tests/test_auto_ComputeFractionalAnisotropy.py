@@ -30,6 +30,7 @@ def test_ComputeFractionalAnisotropy_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ComputeFractionalAnisotropy.input_spec()

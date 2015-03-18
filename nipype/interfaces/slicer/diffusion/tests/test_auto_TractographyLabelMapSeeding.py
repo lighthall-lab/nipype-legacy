@@ -47,6 +47,7 @@ def test_TractographyLabelMapSeeding_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     useindexspace=dict(argstr='--useindexspace ',
     ),

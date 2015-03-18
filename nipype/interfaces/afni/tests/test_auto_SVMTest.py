@@ -33,6 +33,7 @@ def test_SVMTest_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     testlabels=dict(argstr='-testlabels %s',
     ),

@@ -43,6 +43,7 @@ def test_MESD_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MESD.input_spec()

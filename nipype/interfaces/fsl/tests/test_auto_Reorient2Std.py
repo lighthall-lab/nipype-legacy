@@ -21,6 +21,7 @@ def test_Reorient2Std_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Reorient2Std.input_spec()

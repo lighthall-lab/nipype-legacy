@@ -41,6 +41,7 @@ def test_LinearRegistration_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     translationscale=dict(argstr='--translationscale %f',
     ),

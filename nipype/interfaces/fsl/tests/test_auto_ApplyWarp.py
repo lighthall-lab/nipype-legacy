@@ -51,6 +51,7 @@ def test_ApplyWarp_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ApplyWarp.input_spec()

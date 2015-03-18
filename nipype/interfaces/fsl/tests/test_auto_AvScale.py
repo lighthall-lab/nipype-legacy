@@ -17,6 +17,7 @@ def test_AvScale_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = AvScale.input_spec()

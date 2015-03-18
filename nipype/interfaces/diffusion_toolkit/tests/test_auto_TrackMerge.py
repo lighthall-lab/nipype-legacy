@@ -17,6 +17,7 @@ def test_TrackMerge_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     track_files=dict(argstr='%s...',
     mandatory=True,

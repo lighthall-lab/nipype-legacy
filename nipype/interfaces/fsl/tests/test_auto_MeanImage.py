@@ -36,6 +36,7 @@ def test_MeanImage_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MeanImage.input_spec()

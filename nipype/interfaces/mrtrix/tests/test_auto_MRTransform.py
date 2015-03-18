@@ -42,6 +42,7 @@ def test_MRTransform_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     transformation_file=dict(argstr='-transform %s',
     position=1,

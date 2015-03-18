@@ -24,6 +24,7 @@ def test_TCorrelate_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     xset=dict(argstr=' %s',
     copyfile=False,

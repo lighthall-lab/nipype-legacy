@@ -34,6 +34,7 @@ def test_PETStandardUptakeValueComputation_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = PETStandardUptakeValueComputation.input_spec()

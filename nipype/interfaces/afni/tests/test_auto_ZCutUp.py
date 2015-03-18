@@ -25,6 +25,7 @@ def test_ZCutUp_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ZCutUp.input_spec()

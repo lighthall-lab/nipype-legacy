@@ -23,6 +23,7 @@ def test_Copy_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Copy.input_spec()

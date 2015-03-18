@@ -52,6 +52,7 @@ def test_ModelMaker_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = ModelMaker.input_spec()

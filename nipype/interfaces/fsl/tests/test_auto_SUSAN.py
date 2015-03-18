@@ -35,6 +35,7 @@ def test_SUSAN_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     usans=dict(argstr='',
     position=6,

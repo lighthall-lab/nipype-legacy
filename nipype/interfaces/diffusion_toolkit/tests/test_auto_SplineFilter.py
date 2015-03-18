@@ -21,6 +21,7 @@ def test_SplineFilter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     track_file=dict(argstr='%s',
     mandatory=True,

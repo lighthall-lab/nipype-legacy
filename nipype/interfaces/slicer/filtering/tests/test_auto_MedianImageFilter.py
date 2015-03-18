@@ -23,6 +23,7 @@ def test_MedianImageFilter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MedianImageFilter.input_spec()

@@ -29,6 +29,7 @@ def test_VotingBinaryHoleFillingImageFilter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = VotingBinaryHoleFillingImageFilter.input_spec()

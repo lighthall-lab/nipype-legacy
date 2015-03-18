@@ -30,6 +30,7 @@ def test_GrayscaleModelMaker_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold=dict(argstr='--threshold %f',
     ),

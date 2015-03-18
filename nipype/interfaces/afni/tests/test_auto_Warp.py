@@ -33,6 +33,7 @@ def test_Warp_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     tta2mni=dict(argstr='-tta2mni',
     ),

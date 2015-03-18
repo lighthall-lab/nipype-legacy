@@ -23,6 +23,7 @@ def test_AFNItoNIFTI_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = AFNItoNIFTI.input_spec()

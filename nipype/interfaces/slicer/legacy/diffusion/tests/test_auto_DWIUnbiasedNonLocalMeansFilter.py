@@ -33,6 +33,7 @@ def test_DWIUnbiasedNonLocalMeansFilter_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = DWIUnbiasedNonLocalMeansFilter.input_spec()

@@ -34,6 +34,7 @@ def test_Threshold_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     thresh=dict(argstr='%s',
     mandatory=True,

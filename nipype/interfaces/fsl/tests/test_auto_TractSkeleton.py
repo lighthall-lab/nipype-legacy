@@ -31,6 +31,7 @@ def test_TractSkeleton_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     threshold=dict(),
     use_cingulum_mask=dict(usedefault=True,

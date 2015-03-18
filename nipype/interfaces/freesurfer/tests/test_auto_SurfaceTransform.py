@@ -45,6 +45,7 @@ def test_SurfaceTransform_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = SurfaceTransform.input_spec()

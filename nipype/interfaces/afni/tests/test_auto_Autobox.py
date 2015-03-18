@@ -25,6 +25,7 @@ def test_Autobox_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Autobox.input_spec()

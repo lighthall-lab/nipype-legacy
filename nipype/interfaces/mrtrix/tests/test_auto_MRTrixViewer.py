@@ -23,6 +23,7 @@ def test_MRTrixViewer_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = MRTrixViewer.input_spec()

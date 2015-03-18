@@ -23,6 +23,7 @@ def test_Detrend_inputs():
     outputtype=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = Detrend.input_spec()

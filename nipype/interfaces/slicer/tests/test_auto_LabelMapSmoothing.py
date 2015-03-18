@@ -28,6 +28,7 @@ def test_LabelMapSmoothing_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     )
     inputs = LabelMapSmoothing.input_spec()

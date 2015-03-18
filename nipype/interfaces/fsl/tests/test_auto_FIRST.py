@@ -45,6 +45,7 @@ def test_FIRST_inputs():
     output_type=dict(),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     verbose=dict(argstr='-v',
     position=1,

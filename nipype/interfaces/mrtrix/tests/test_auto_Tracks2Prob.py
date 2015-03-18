@@ -37,6 +37,7 @@ def test_Tracks2Prob_inputs():
     ),
     terminal_output=dict(mandatory=True,
     nohash=True,
+    usedefault=True,
     ),
     voxel_dims=dict(argstr='-vox %s',
     position=2,
