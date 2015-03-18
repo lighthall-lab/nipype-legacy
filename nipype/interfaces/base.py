@@ -1284,7 +1284,7 @@ class CommandLineInputSpec(BaseInterfaceInputSpec):
                                         'finished to display output, `file` - '
                                         'writes output to file, `none` - output'
                                         ' is ignored'),
-                                  nohash=True, mandatory=True)
+                                  nohash=True, mandatory=True, usedefault=True)
 
 
 class CommandLine(BaseInterface):
@@ -1322,7 +1322,6 @@ class CommandLine(BaseInterface):
     input_spec = CommandLineInputSpec
     _cmd = None
     _version = None
-    _terminal_output = 'stream'
 
     def __init__(self, command=None, **inputs):
         super(CommandLine, self).__init__(**inputs)
@@ -1333,31 +1332,6 @@ class CommandLine(BaseInterface):
             raise Exception("Missing command")
         if command:
             self._cmd = command
-        self.inputs.on_trait_change(self._terminal_output_update,
-                                    'terminal_output')
-        if not isdefined(self.inputs.terminal_output):
-            self.inputs.terminal_output = self._terminal_output
-        else:
-            self._terminal_output_update()
-
-    def _terminal_output_update(self):
-        self._terminal_output = self.inputs.terminal_output
-
-    @classmethod
-    def set_default_terminal_output(cls, output_type):
-        """Set the default output type for FSL classes.
-
-        This method is used to set the default output type for all fSL
-        subclasses.  However, setting this will not update the output
-        type for any existing instances.  For these, assign the
-        <instance>.inputs.output_type.
-        """
-
-        if output_type in ['stream', 'allatonce', 'file', 'none']:
-            cls._terminal_output = output_type
-        else:
-            raise AttributeError('Invalid terminal output_type: %s' %
-                                 output_type)
 
     @property
     def cmd(self):
