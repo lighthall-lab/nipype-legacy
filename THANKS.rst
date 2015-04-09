@@ -88,7 +88,9 @@ Other contributors
   * Tom Waite
   
 We would also like to thank `JetBrains <http://www.jetbrains.com/>`__ for providing `Pycharm <http://www.jetbrains.com/pycharm/>`__ licenses.
- 
+
+I would also like to thank my mum.
+
 Funding
 -------
 Satrajit Ghosh work on this project was partially funded by NIBIB R03 EB008673 (PI: Ghosh and Whitfield-Gabrieli) and by the `INCF <http://www.incf.org>`__ through a contract with TankThink Labs, LLC.
