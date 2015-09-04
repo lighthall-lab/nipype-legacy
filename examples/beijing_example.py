@@ -2,10 +2,11 @@ from nipype.pipeline.engine import Workflow, Node
 from nipype.interfaces.io import SelectFiles, DataSink
 from nipype.interfaces.fsl import MCFLIRT, BET
 
-templates={"T1": "sub-01/ses-retest/anatomy/sub-01_ses-retest_T1w.nii.gz",
-           "epi": "sub-01/ses-retest/functional/sub-01_ses-retest_task-overtwordrepetition_bold.nii.gz"}
+templates={"T1": "sub-01/ses-{ses}/anatomy/sub-01_ses-{ses}_T1w.nii.gz",
+           "epi": "sub-01/ses-{ses}/functional/sub-01_ses-{ses}_task-overtwordrepetition_bold.nii.gz"}
 datagraber = Node(SelectFiles(templates), name="datagrabber")
 datagraber.inputs.base_directory = "/Users/filo/chrisgor@stanford.edu/bids_examples/ds114"
+datagraber.iterables = [("ses", ["test", "retest"])]
 
 motion_correction = Node(MCFLIRT(), name="motion_correction")
 motion_correction.inputs.save_plots = True
