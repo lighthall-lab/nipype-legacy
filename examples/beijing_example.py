@@ -29,4 +29,4 @@ workflow.connect(skullstrip, "mask_file", datasink, "mask_file")
 
 workflow.write_graph()
 
-workflow.run()
+workflow.run(plugin="MultiProc")
